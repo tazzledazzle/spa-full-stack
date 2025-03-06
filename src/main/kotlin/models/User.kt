@@ -22,5 +22,5 @@ data class User(
 
 @Serializable
 enum class Priority {
-    LOW, MEDIUM, HIGH
+    LOW, MEDIUM, HIGH, CRITICAL
 }

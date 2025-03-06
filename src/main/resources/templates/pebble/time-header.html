@@ -1,0 +1,31 @@
+<div class="timesheet-header">
+    <div class="header-title">
+        <h2>Project Timesheet</h2>
+        <span class="week-display">Week: ${week}</span>
+    </div>
+    <div class="header-fields">
+        <div class="field">
+            <label for="employee-name">Employee Name:</label>
+            <input
+                    type="text"
+                    id="employee-name"
+                    value="${employeeName || ''}"
+                    oninput="(${onEmployeeNameChange.toString()})(this.value)"
+            />
+        </div>
+        <div class="field">
+            <label for="project-select">Project:</label>
+            <select
+                    id="project-select"
+                    onchange="(${onProjectChange.toString()})(this.value)"
+            >
+                <option value="" ${!project ? 'selected' : ''}>Select a project</option>
+                ${projects.map(p => `
+                <option value="${p.id}" ${project === p.id ? 'selected' : ''}>
+                ${p.name}
+                </option>
+                `).join('')}
+            </select>
+        </div>
+    </div>
+</div>
