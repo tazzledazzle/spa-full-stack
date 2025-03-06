@@ -1,5 +1,6 @@
 package com.northshore
 
+import com.northshore.models.FlashData
 import com.northshore.models.Priority
 import com.northshore.models.Product
 import com.northshore.models.Task
