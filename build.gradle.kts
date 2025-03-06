@@ -37,6 +37,7 @@ sourceSets {
 val junit_ver = "5.12.0"
 dependencies {
     implementation("io.ktor:ktor-server-core")
+    implementation("io.ktor:ktor-server-pebble")
     implementation("io.ktor:ktor-server-swagger")
     implementation("io.ktor:ktor-server-metrics")
     implementation("io.ktor:ktor-server-content-negotiation")

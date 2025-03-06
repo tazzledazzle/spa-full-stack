@@ -1,11 +1,15 @@
 package com.northshore
 
+import com.northshore.models.User
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.html.*
+import io.ktor.server.pebble.Pebble
+import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.thymeleaf.*
+import io.pebbletemplates.pebble.loader.ClasspathLoader
 import kotlinx.css.*
 import kotlinx.html.*
 import org.thymeleaf.TemplateEngine
@@ -22,7 +26,17 @@ fun Application.configureTemplating() {
             characterEncoding = "utf-8"
         })
     }
+    install(Pebble) {
+        loader(ClasspathLoader().apply {
+            prefix = "templates/pebble/"
+        })
+    }
     routing {
+        get("/pebble") {
+            val user = User(name = "John", email = "someplace@gmail.com", password = "password", age = 45, country = "US")
+            call.respond(PebbleContent("page.html", mapOf("user" to user, "websiteTitle" to "Pebble")))
+        }
+
         get("/html-dsl") {
             call.respondHtml {
                 body {
