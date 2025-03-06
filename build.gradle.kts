@@ -3,6 +3,7 @@ val kotlin_version: String by project
 val kotlinx_html_version: String by project
 val logback_version: String by project
 val postgres_version: String by project
+val ktor_version: String by project
 
 plugins {
     kotlin("jvm") version "2.1.10"
@@ -36,33 +37,32 @@ sourceSets {
 
 val junit_ver = "5.12.0"
 dependencies {
-    implementation("io.ktor:ktor-server-core")
-    implementation("io.ktor:ktor-server-swagger")
-    implementation("io.ktor:ktor-server-metrics")
-    implementation("io.ktor:ktor-server-content-negotiation")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    // Add these lines:
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-
-    implementation("io.ktor:ktor-serialization-gson")
-    implementation("io.ktor:ktor-server-html-builder")
-    implementation("org.jetbrains.kotlinx:kotlinx-html:$kotlinx_html_version")
-    implementation("org.jetbrains:kotlin-css:1.0.0-pre.129-kotlin-1.4.20")
-    implementation("io.ktor:ktor-server-thymeleaf")
-    implementation("org.postgresql:postgresql:$postgres_version")
-    implementation("com.h2database:h2:$h2_version")
-    implementation("io.ktor:ktor-server-netty")
-    // For form handling
-    implementation("io.ktor:ktor-server-html-builder:2.3.8")
-    implementation("io.ktor:ktor-server-sessions:2.3.8")
-    implementation("io.ktor:ktor-server-status-pages:2.3.8")
-
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+    implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-server-auth:$ktor_version")
+    implementation("io.ktor:ktor-server-html-builder:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("io.ktor:ktor-server-config-yaml")
-    // Validation
-    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
-    implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
-    implementation("org.glassfish:jakarta.el:5.0.0-M1")
+
+//    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    // Add these lines:
+//
+//    implementation("io.ktor:ktor-serialization-gson")
+//    implementation("io.ktor:ktor-server-html-builder")
+//    implementation("org.jetbrains.kotlinx:kotlinx-html:$kotlinx_html_version")
+//    implementation("org.jetbrains:kotlin-css:1.0.0-pre.129-kotlin-1.4.20")
+//    implementation("io.ktor:ktor-server-thymeleaf")
+//    implementation("org.postgresql:postgresql:$postgres_version")
+//    implementation("com.h2database:h2:$h2_version")
+    // For form handling
+//    implementation("io.ktor:ktor-server-sessions:2.3.8")
+//    implementation("io.ktor:ktor-server-status-pages:2.3.8")
+//
+//    implementation("io.ktor:ktor-server-config-yaml")
+//    // Validation
+//    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+//    implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+//    implementation("org.glassfish:jakarta.el:5.0.0-M1")
 
     // Use a BOM (Bill of Materials) to ensure consistent versions
     testImplementation(platform("org.junit:junit-bom:$junit_ver"))
@@ -73,7 +73,7 @@ dependencies {
     testImplementation("org.junit.platform:junit-platform-launcher:1.12.0")
 
     // Other test dependencies...
-    testImplementation("io.ktor:ktor-server-test-host")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
 tasks.named<Test>("test") {
