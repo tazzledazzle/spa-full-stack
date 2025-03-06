@@ -1,0 +1,52 @@
+<!DOCTYPE html >
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tasks</title>
+</head>
+<body>
+<p th:if="${tasks.isEmpty()}">No tasks available.</p>
+
+<table th:unless="${tasks.isEmpty()}">
+    <thead>
+    <tr>
+<!--        <th>ID</th>-->
+        <th>Name</th>
+        <th>Price</th>
+        <th>Discounted Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="task : ${tasks}" >
+<!--        <td th:text="${task.id}">1</td>-->
+        <td th:value="${task.name}">Product Name</td>
+        <td th:text="${task.description}">$0.00</td>
+        <td th:text="${task.priority}">$0.00</td>
+    </tr>
+    </tbody>
+</table>
+
+<h1>Adding a new task</h1>
+<form method="post" action="/tasks">
+    <div>
+        <label for="name">Name: </label>
+        <input type="text" id="name" name="name" size="10">
+    </div>
+    <div>
+        <label for="description">Description: </label>
+        <input type="text" id="description" name="description" size="20">
+    </div>
+    <div>
+        <label for="priority">Priority: </label>
+        <select id="priority" name="priority">
+            <option name="Low">Low</option>
+            <option name="Medium">Medium</option>
+            <option name="High">High</option>
+            <option name="Vital">Vital</option>
+        </select>
+    </div>
+    <input type="submit">
+</form>
+</body>
+</html>
+

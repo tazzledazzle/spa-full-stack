@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${company} + ' Products'">Products</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .out-of-stock { color: red; }
+        .discount { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1 th:text="${company} + ' Product List'">Product List</h1>
+
+<p>
+    Select Category:
+    <select>
+        <option value="">All Categories</option>
+        <option th:each="category : ${categories}"
+                th:value="${category.key}"
+                th:text="${category.value}">Category</option>
+    </select>
+</p>
+
+<p>We are offering a <span class="discount" th:text="${discount} + '%'">10%</span> discount on all products!</p>
+
+<p th:if="${products.isEmpty()}">No products available.</p>
+
+<table th:unless="${products.isEmpty()}">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Discounted Price</th>
+        <th>Availability</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product, stat : ${products}" th:class="${stat.odd} ? 'odd' : 'even'">
+        <td th:text="${product.id}">1</td>
+        <td th:text="${product.name}">Product Name</td>
+        <td th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</td>
+        <td th:text="'$' + ${#numbers.formatDecimal(product.price * (100 - discount) / 100, 1, 2)}">$0.00</td>
+        <td th:class="${!product.inStock} ? 'out-of-stock'">
+            <span th:if="${product.inStock}" th:text="'In Stock'">In Stock</span>
+            <span th:unless="${product.inStock}" th:text="'Out of Stock'">Out of Stock</span>
+        </td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="5" th:text="'Total Products: ' + ${products.size()}">Total Products: 0</td>
+    </tr>
+    </tfoot>
+</table>
+
+<div>
+    <p>Expression examples:</p>
+    <ul>
+        <li>Company name uppercase: <span th:text="${#strings.toUpperCase(company)}">COMPANY</span></li>
+<!--        <li>Number of products in stock: <span th:text="${#lists.size(#lists.filterBy(products, prod -> prod.inStock))}">3</span></li>-->
+        <li>Today's date: <span th:text="${#temporals.format(#temporals.createToday(), 'dd MMMM yyyy')}">01 January 2023</span></li>
+    </ul>
+</div>
+</body>
+</html>

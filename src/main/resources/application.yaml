@@ -1,0 +1,13 @@
+ktor:
+  application:
+    modules:
+      - com.northshore.ApplicationKt.module
+  deployment:
+    watch:
+      - resources
+      - classes
+    port: 8080
+postgres:
+  url: "jdbc:postgresql://localhost:5432/postgres"
+  user: terenceschumacher
+  password: password

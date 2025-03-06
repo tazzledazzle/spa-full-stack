@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Page Title</title>
+</head>
+<body>
+<h1 th:text="${pageTitle}">Default Title</h1>
+<p th:text="${message}">Default message</p>
+
+<p>The current time is: <span th:text="${#temporals.format(currentTime, 'dd-MM-yyyy HH:mm')}">31-12-2023 12:00</span></p>
+</body>
+</html>
