@@ -1,5 +1,6 @@
 package com.northshore
 
+import com.northshore.com.northshore.models.UserRole
 import com.northshore.models.User
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -32,9 +33,39 @@ fun Application.configureTemplating() {
         })
     }
     routing {
-        get("/pebble") {
-            val user = User(name = "John", email = "someplace@gmail.com", password = "password", age = 45, country = "US")
-            call.respond(PebbleContent("page.html", mapOf("user" to user, "websiteTitle" to "Pebble")))
+        get("/users") {
+            val users = listOf(
+                User(1, firstName = "John", lastName = "Doe", username = "jdoe", email = "jdoe@company.com",
+                    password = "password", role = UserRole.ADMIN, createdAt = "2025-03-06"),
+
+                User(2, firstName = "Jane", lastName = "Smith", username = "jsmith", email = "jsmith@company.com",
+                    password = "password", role = UserRole.PM, createdAt = "2025-03-06"),
+
+                User(3, firstName = "Michael", lastName = "Johnson", username = "mjohnson", email = "mjohnson@company.com",
+                    password = "password", role = UserRole.DEVELOPER, createdAt = "2025-03-06"),
+
+                User(4, firstName = "Emily", lastName = "Williams", username = "ewilliams", email = "ewilliams@company.com",
+                    password = "password", role = UserRole.TESTER, createdAt = "2025-03-06"),
+
+                User(5, firstName = "David", lastName = "Brown", username = "dbrown", email = "dbrown@company.com",
+                    password = "password", role = UserRole.ANALYST, createdAt = "2025-03-06"),
+
+                User(6, firstName = "Sarah", lastName = "Miller", username = "smiller", email = "smiller@company.com",
+                    password = "password", role = UserRole.DEVELOPER, createdAt = "2025-03-06"),
+
+                User(7, firstName = "Robert", lastName = "Wilson", username = "rwilson", email = "rwilson@company.com",
+                    password = "password", role = UserRole.PM, createdAt = "2025-03-06"),
+
+                User(8, firstName = "Jessica", lastName = "Taylor", username = "jtaylor", email = "jtaylor@company.com",
+                    password = "password", role = UserRole.TESTER, createdAt = "2025-03-06"),
+
+                User(9, firstName = "Thomas", lastName = "Anderson", username = "tanderson", email = "tanderson@company.com",
+                    password = "password", role = UserRole.DEVELOPER, createdAt = "2025-03-06"),
+
+                User(10, firstName = "Lisa", lastName = "Garcia", username = "lgarcia", email = "lgarcia@company.com",
+                    password = "password", role = UserRole.ADMIN, createdAt = "2025-03-06")
+            )
+            call.respond(PebbleContent("users.html", mapOf("users" to users, "websiteTitle" to "Pebble")))
         }
 
         get("/html-dsl") {

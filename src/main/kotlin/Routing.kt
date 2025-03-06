@@ -13,7 +13,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.sessions
 import java.time.LocalDateTime
-import kotlin.text.toIntOrNull
 
 fun Application.configureRouting() {
 
@@ -57,9 +56,10 @@ fun Application.configureRouting() {
 
         get("/tasks") {
             val tasks = listOf(
-                Task("1", "Task 1", Priority.LOW),
-                Task("2", "Task 2", Priority.MEDIUM),
-                Task("3", "Task 3", Priority.HIGH),
+//                Task("1", "Task 1", Priority.LOW),
+//                Task("2", "Task 2", Priority.MEDIUM),
+//                Task("3", "Task 3", Priority.HIGH),
+                Task(id = 1, projectId = 1, name = "Task 1", description =  "Description 1", priority = Priority.LOW),
             )
 
             val model = mapOf(
@@ -71,7 +71,10 @@ fun Application.configureRouting() {
 
         post("/tasks") {
             val formParameters = call.receiveParameters()
-            val tasks = mutableListOf<Task>(Task(formParameters["name"].toString(),formParameters["description"].toString(),formParameters["priority"] as Priority))
+            val tasks = mutableListOf<Task>(
+//                Task(formParameters["name"].toString(),formParameters["description"].toString(),formParameters["priority"] as Priority)
+                        Task(id = 1, projectId = 1, name = "Task 1", description =  "Description 1", priority = Priority.LOW)
+            )
 
             val model = mapOf(
                 "tasks" to tasks
@@ -172,14 +175,14 @@ private fun addFormData(model: MutableMap<String, Any>) {
 // Helper function to parse form parameters into User object
 private fun parseUserFromParameters(params: Parameters): User {
     return User(
-        name = params["name"] ?: "",
+//        name = params["name"] ?: "",
         email = params["email"] ?: "",
         password = params["password"] ?: "",
-        age = params["age"]?.toIntOrNull(),
-        gender = params["gender"] ?: "",
-        newsletter = params["newsletter"] == "on" || params["newsletter"] == "true",
-        country = params["country"] ?: "",
-        interests = params.getAll("interests") ?: emptyList(),
-        bio = params["bio"] ?: ""
+//        age = params["age"]?.toIntOrNull(),
+//        gender = params["gender"] ?: "",
+//        newsletter = params["newsletter"] == "on" || params["newsletter"] == "true",
+//        country = params["country"] ?: "",
+//        interests = params.getAll("interests") ?: emptyList(),
+//        bio = params["bio"] ?: ""
     )
 }
