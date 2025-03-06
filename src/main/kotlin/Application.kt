@@ -1,5 +1,6 @@
 package com.northshore
 
+import com.northshore.models.FlashData
 import com.northshore.models.User
 import com.northshore.util.ValidationUtil
 import io.ktor.http.*
@@ -36,20 +37,8 @@ fun main(args: Array<String>) {
         module()
     }.start(wait = true)}
 
-@Serializable
-data class FlashData(
-    var successMessage: String? = null,
-    var registeredUser: User? = null,
-    var errors: Map<String, String> = emptyMap(),
-    var formData: User? = null
-)
 fun Application.module() {
-    configureHTTP()
-    configureMonitoring()
-    configureSerialization()
-    configureTemplating()
-    configureDatabases()
-    configureRouting()
+
 }
 
 
