@@ -1,7 +1,7 @@
 ktor:
   application:
     modules:
-      - com.northshore.ApplicationKt.module
+      - com.northshore.ApplicationKt.main
   deployment:
     watch:
       - resources
