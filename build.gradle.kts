@@ -10,7 +10,7 @@ group = "com.northshore"
 version = "0.0.1"
 
 application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
+    mainClass.set("com.northshore.ApplicationKt")
 
 //    val isDevelopment: Boolean = project.ext.has("development")
     val isDevelopment: Boolean = true
@@ -24,11 +24,7 @@ repositories {
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
-sourceSets {
-    test {
-        kotlin.srcDir("src/test/kotlin")
-    }
-}
+
 
 val junit_ver = "5.12.0"
 val ktorVersion = "3.1.1"
