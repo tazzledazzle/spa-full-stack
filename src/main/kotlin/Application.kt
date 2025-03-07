@@ -18,6 +18,7 @@ import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.routing
+import io.netty.handler.logging.LogLevel
 import io.pebbletemplates.pebble.loader.ClasspathLoader
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
@@ -30,7 +31,7 @@ fun main() {
 
 fun Application.module() {
     install(Koin) {
-        slf4jLogger()
+        slf4jLogger(org.koin.core.logger.Level.DEBUG)
         modules(appModule)
     }
 

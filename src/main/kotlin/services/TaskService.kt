@@ -1,16 +1,55 @@
 package com.northshore.services
 
+import com.northshore.com.northshore.models.TaskPriority
 import com.northshore.models.Task
+import com.northshore.models.TaskStatus
 
 
 class TaskService {
     fun getTasks(): List<Task> {
         return listOf(
-            Task(1, "Create a user flow of social application design", TaskStatus.APPROVED, true),
-            Task(2, "Create a user flow of social application design", TaskStatus.IN_REVIEW, true),
-            Task(3, "Landing page design for Fintech project of singapore", TaskStatus.IN_REVIEW, true),
-            Task(4, "Interactive prototype for app screens of deltamine project", TaskStatus.ON_GOING, false),
-            Task(5, "Interactive prototype for app screens of deltamine project", TaskStatus.APPROVED, true)
+            Task(
+                id = 1,
+                projectId = 1,
+                name = "Design mockups",
+                description = "Create visual mockups for homepage and key sections",
+                priority = TaskPriority.HIGH
+            ),
+            Task(
+                id = 2,
+                projectId = 1,
+                name = "Frontend implementation",
+                description = "Implement responsive HTML/CSS based on approved designs",
+                priority = TaskPriority.MEDIUM
+            ),
+            Task(
+                id = 3,
+                projectId = 1,
+                name = "Backend integration",
+                description = "Connect frontend to CMS and databases",
+                priority = TaskPriority.HIGH
+            ),
+            Task(
+                id = 4,
+                projectId = 2,
+                name = "Requirements gathering",
+                description = "Document functional and non-functional requirements",
+                priority = TaskPriority.CRITICAL
+            ),
+            Task(
+                id = 5,
+                projectId = 2,
+                name = "UI/UX design",
+                description = "Design user interface with focus on usability",
+                priority = TaskPriority.HIGH
+            ),
+            Task(
+                id = 6,
+                projectId = 2,
+                name = "iOS development",
+                description = "Develop native iOS application using Swift",
+                priority = TaskPriority.MEDIUM
+            )
         )
     }
 }

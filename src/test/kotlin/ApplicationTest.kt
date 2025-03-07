@@ -14,7 +14,7 @@ class ApplicationTest {
             module()
         }
 
-        client.get("/").apply {
+        client.get("/test").apply {
             assertEquals(HttpStatusCode.OK, status)
         }
     }
