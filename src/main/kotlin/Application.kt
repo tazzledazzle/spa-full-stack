@@ -4,6 +4,7 @@ import com.northshore.module
 import com.northshore.services.ProjectService
 import com.northshore.services.TaskService
 import io.ktor.http.*
+import io.ktor.http.ContentDisposition.Companion.File
 import io.ktor.server.application.*
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.resources
@@ -24,9 +25,10 @@ import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
+import java.io.File
 
 fun main() {
- embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module).start(wait = true)
+ embeddedServer(Netty, port = 8081, host = "localhost", module = Application::module).start(wait = true)
 }
 
 fun Application.module() {
@@ -60,12 +62,13 @@ fun Application.module() {
 
     install(Pebble) {
         loader(ClasspathLoader().apply {
-            prefix = "templates/pebble"
+            prefix = "templates"
         })
     }
 
     routing {
-        staticResources("/resources/static", "static")
+        staticFiles("/static", File("src/main/resources/static"))
+        staticResources("/resources", "static")
     }
 
     registerDashboardRoutes()

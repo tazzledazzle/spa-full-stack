@@ -66,24 +66,6 @@
                             <span>Resource mgnt</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="/users">
-                            <i class="fa-solid fa-user-friends"></i>
-                            <span>Users</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/templates">
-                            <i class="fa-solid fa-layer-group"></i>
-                            <span>Project template</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/settings">
-                            <i class="fa-solid fa-cog"></i>
-                            <span>Menu settings</span>
-                        </a>
-                    </li>
                 </ul>
             </nav>
 
@@ -94,7 +76,7 @@
 
         <main class="main-content">
             <header class="main-header">
-                <h1 class="page-title">{{ pageTitle }}</h1>
+                <h1 class="page-title">{# @pebvariable name="pageTitle" type="String" #}{{ pageTitle }}</h1>
 
                 <div class="header-actions">
                     <div class="search-container">
@@ -120,7 +102,8 @@
             </header>
 
             <div class="content-area">
-                {% block content %}{% endblock %}
+                {% block content %}
+                {% endblock %}
             </div>
         </main>
     </div>

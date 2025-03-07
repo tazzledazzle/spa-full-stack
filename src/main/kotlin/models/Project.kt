@@ -13,13 +13,13 @@ data class Project (
 
     var description: String = "",
 
-    var startDate:  LocalDateTime? = null,
+    var startDate:  String = "",
 
-    var endDate:  LocalDateTime? = null,
+    var endDate:  String = "",
 
     var projectManager: User? = null,
 
-    var createdAt: LocalDateTime? = null,
+    var createdAt: String = "",
 
     var status: ProjectStatus = ProjectStatus.ON_GOING,
     var progress: Double = 0.0,

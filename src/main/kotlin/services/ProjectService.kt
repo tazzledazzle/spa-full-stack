@@ -1,28 +1,18 @@
 package com.northshore.services
 
 import com.northshore.com.northshore.models.TaskPriority
-import com.northshore.models.DashboardStats
-import com.northshore.models.Project
-import com.northshore.models.ProjectStatus
-import com.northshore.models.Task
-import com.northshore.models.User
-import com.northshore.models.UserRole
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.format
-import kotlinx.datetime.format.DateTimeFormatBuilder
-import java.time.format.DateTimeFormatter
+import com.northshore.models.*
 
 class ProjectService {
-    private val dateFormatter = LocalDate.Formats.ISO
 
     fun getProjects(): List<Project> {
         // Create project managers
-        val projectManager1 = User(1, "John", "Doe", "jdoe", "jdoe@company.com", "password", UserRole.ADMIN, LocalDateTime.parse("2025-03-06"))
-        val projectManager2 = User(2, "Jane", "Smith", "jsmith", "jsmith@company.com", "password", UserRole.PROJECT_MANAGER, LocalDateTime.parse("2025-03-06"))
-        val projectManager3 = User(3, "Michael", "Johnson", "mjohnson", "mjohnson@company.com", "password", UserRole.PROJECT_MANAGER, LocalDateTime.parse("2025-03-06"))
-        val projectManager4 = User(4, "Emily", "Williams", "ewilliams", "ewilliams@company.com", "password", UserRole.PROJECT_MANAGER, LocalDateTime.parse("2025-03-06"))
-        val projectManager5 = User(5, "David", "Brown", "dbrown", "dbrown@company.com", "password", UserRole.ADMIN, LocalDateTime.parse("2025-03-06"))
+        val projectManager1 =
+            User(1, "John", "Doe", "jdoe", "jdoe@company.com", "password", UserRole.ADMIN, "2025-03-06")
+        val projectManager2 = User(2, "Jane", "Smith", "jsmith", "jsmith@company.com", "password", UserRole.PROJECT_MANAGER, "2025-03-06")
+        val projectManager3 = User(3, "Michael", "Johnson", "mjohnson", "mjohnson@company.com", "password", UserRole.PROJECT_MANAGER, "2025-03-06")
+        val projectManager4 = User(4, "Emily", "Williams", "ewilliams", "ewilliams@company.com", "password", UserRole.PROJECT_MANAGER, "2025-03-06")
+        val projectManager5 = User(5, "David", "Brown", "dbrown", "dbrown@company.com", "password", UserRole.ADMIN, "2025-03-06")
 
 // Create 25 projects with tasks
         val projects = listOf(
@@ -30,10 +20,10 @@ class ProjectService {
                 id = 1L,
                 name = "Website Redesign",
                 description = "Modernize company website with responsive design",
-                startDate = LocalDateTime.parse("2025-03-10T00:00:00"),
-                endDate = LocalDateTime.parse("2025-06-30T23:59:59"),
+                startDate = "2025-03-10T00:00:00",
+                endDate = "2025-06-30T23:59:59",
                 projectManager = projectManager1,
-                createdAt = LocalDateTime.parse("2025-03-06T12:00:00"),
+                createdAt = "2025-03-06T12:00:00",
                 tasks = mutableListOf(
                     Task(
                         id = 1,
@@ -63,10 +53,10 @@ class ProjectService {
                 id = 2L,
                 name = "Mobile App Development",
                 description = "Create iOS and Android versions of customer portal",
-                startDate = LocalDateTime.parse("2025-04-15T00:00:00"),
-                endDate = LocalDateTime.parse("2025-10-31T23:59:59"),
+                startDate = "2025-04-15T00:00:00",
+                endDate = "2025-10-31T23:59:59",
                 projectManager = projectManager2,
-                createdAt = LocalDateTime.parse("2025-03-06T12:30:00"),
+                createdAt = "2025-03-06T12:30:00",
                 tasks = mutableListOf(
                     Task(
                         id = 4,
@@ -96,10 +86,10 @@ class ProjectService {
                 id = 3L,
                 name = "Database Migration",
                 description = "Migrate legacy database to PostgreSQL",
-                startDate = LocalDateTime.parse("2025-05-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-07-31T23:59:59"),
+                startDate = "2025-05-01T00:00:00",
+                endDate = "2025-07-31T23:59:59",
                 projectManager = projectManager3,
-                createdAt = LocalDateTime.parse("2025-03-06T13:15:00"),
+                createdAt = "2025-03-06T13:15:00",
                 tasks = mutableListOf(
                     Task(
                         id = 7,
@@ -129,10 +119,10 @@ class ProjectService {
                 id = 4L,
                 name = "API Gateway Implementation",
                 description = "Implement centralized API gateway for microservices",
-                startDate = LocalDateTime.parse("2025-06-15T00:00:00"),
-                endDate = LocalDateTime.parse("2025-09-30T23:59:59"),
+                startDate = "2025-06-15T00:00:00",
+                endDate = "2025-09-30T23:59:59",
                 projectManager = projectManager4,
-                createdAt = LocalDateTime.parse("2025-03-06T14:00:00"),
+                createdAt = "2025-03-06T14:00:00",
                 tasks = mutableListOf(
                     Task(
                         id = 10,
@@ -162,10 +152,10 @@ class ProjectService {
                 id = 5L,
                 name = "DevOps Pipeline Upgrade",
                 description = "Modernize CI/CD pipeline with GitHub Actions",
-                startDate = LocalDateTime.parse("2025-04-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-06-15T23:59:59"),
+                startDate = "2025-04-01T00:00:00",
+                endDate = "2025-06-15T23:59:59",
                 projectManager = projectManager5,
-                createdAt = LocalDateTime.parse("2025-03-06T14:45:00"),
+                createdAt = "2025-03-06T14:45:00",
                 tasks = mutableListOf(
                     Task(
                         id = 13,
@@ -195,10 +185,10 @@ class ProjectService {
                 id = 6L,
                 name = "Security Audit",
                 description = "Comprehensive security audit of all systems",
-                startDate = LocalDateTime.parse("2025-07-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-08-31T23:59:59"),
+                startDate = "2025-07-01T00:00:00",
+                endDate = "2025-08-31T23:59:59",
                 projectManager = projectManager1,
-                createdAt = LocalDateTime.parse("2025-03-06T15:30:00"),
+                createdAt = "2025-03-06T15:30:00",
                 tasks = mutableListOf(
                     Task(
                         id = 16,
@@ -228,10 +218,10 @@ class ProjectService {
                 id = 7L,
                 name = "Customer Portal Enhancement",
                 description = "Add new features to customer self-service portal",
-                startDate = LocalDateTime.parse("2025-05-15T00:00:00"),
-                endDate = LocalDateTime.parse("2025-08-15T23:59:59"),
+                startDate = "2025-05-15T00:00:00",
+                endDate = "2025-08-15T23:59:59",
                 projectManager = projectManager2,
-                createdAt = LocalDateTime.parse("2025-03-06T16:15:00"),
+                createdAt = "2025-03-06T16:15:00",
                 tasks = mutableListOf(
                     Task(
                         id = 19,
@@ -261,10 +251,10 @@ class ProjectService {
                 id = 8L,
                 name = "Data Analytics Platform",
                 description = "Build internal data analytics platform for business teams",
-                startDate = LocalDateTime.parse("2025-06-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-12-31T23:59:59"),
+                startDate = "2025-06-01T00:00:00",
+                endDate = "2025-12-31T23:59:59",
                 projectManager = projectManager3,
-                createdAt = LocalDateTime.parse("2025-03-06T17:00:00"),
+                createdAt = "2025-03-06T17:00:00",
                 tasks = mutableListOf(
                     Task(
                         id = 22,
@@ -294,10 +284,10 @@ class ProjectService {
                 id = 9L,
                 name = "Legacy System Retirement",
                 description = "Decommission legacy ordering system",
-                startDate = LocalDateTime.parse("2025-08-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-10-31T23:59:59"),
+                startDate = "2025-08-01T00:00:00",
+                endDate = "2025-10-31T23:59:59",
                 projectManager = projectManager4,
-                createdAt = LocalDateTime.parse("2025-03-06T17:45:00"),
+                createdAt = "2025-03-06T17:45:00",
                 tasks = mutableListOf(
                     Task(
                         id = 25,
@@ -327,10 +317,10 @@ class ProjectService {
                 id = 10L,
                 name = "Accessibility Compliance",
                 description = "Ensure all digital properties meet WCAG 2.1 AA standards",
-                startDate = LocalDateTime.parse("2025-04-15T00:00:00"),
-                endDate = LocalDateTime.parse("2025-07-15T23:59:59"),
+                startDate = "2025-04-15T00:00:00",
+                endDate = "2025-07-15T23:59:59",
                 projectManager = projectManager5,
-                createdAt = LocalDateTime.parse("2025-03-06T18:30:00"),
+                createdAt = "2025-03-06T18:30:00",
                 tasks = mutableListOf(
                     Task(
                         id = 28,
@@ -360,10 +350,10 @@ class ProjectService {
                 id = 11L,
                 name = "E-commerce Integration",
                 description = "Integrate with new payment gateway and shipping providers",
-                startDate = LocalDateTime.parse("2025-05-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-07-31T23:59:59"),
+                startDate = "2025-05-01T00:00:00",
+                endDate = "2025-07-31T23:59:59",
                 projectManager = projectManager1,
-                createdAt = LocalDateTime.parse("2025-03-06T09:15:00"),
+                createdAt = "2025-03-06T09:15:00",
                 tasks = mutableListOf(
                     Task(
                         id = 31,
@@ -393,10 +383,10 @@ class ProjectService {
                 id = 12L,
                 name = "Cloud Migration",
                 description = "Migrate on-premise infrastructure to cloud platform",
-                startDate = LocalDateTime.parse("2025-06-15T00:00:00"),
-                endDate = LocalDateTime.parse("2026-01-31T23:59:59"),
+                startDate = "2025-06-15T00:00:00",
+                endDate = "2026-01-31T23:59:59",
                 projectManager = projectManager2,
-                createdAt = LocalDateTime.parse("2025-03-06T10:30:00"),
+                createdAt = "2025-03-06T10:30:00",
                 tasks = mutableListOf(
                     Task(
                         id = 34,
@@ -426,10 +416,10 @@ class ProjectService {
                 id = 13L,
                 name = "Product Catalog Overhaul",
                 description = "Redesign product catalog and categorization system",
-                startDate = LocalDateTime.parse("2025-07-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-10-15T23:59:59"),
+                startDate = "2025-07-01T00:00:00",
+                endDate = "2025-10-15T23:59:59",
                 projectManager = projectManager3,
-                createdAt = LocalDateTime.parse("2025-03-06T11:45:00"),
+                createdAt = "2025-03-06T11:45:00",
                 tasks = mutableListOf(
                     Task(
                         id = 37,
@@ -459,10 +449,10 @@ class ProjectService {
                 id = 14L,
                 name = "Internal Tools Modernization",
                 description = "Update internal admin tools with modern technology stack",
-                startDate = LocalDateTime.parse("2025-05-15T00:00:00"),
-                endDate = LocalDateTime.parse("2025-09-30T23:59:59"),
+                startDate = "2025-05-15T00:00:00",
+                endDate = "2025-09-30T23:59:59",
                 projectManager = projectManager4,
-                createdAt = LocalDateTime.parse("2025-03-06T12:15:00"),
+                createdAt = "2025-03-06T12:15:00",
                 tasks = mutableListOf(
                     Task(
                         id = 40,
@@ -492,10 +482,10 @@ class ProjectService {
                 id = 15L,
                 name = "Reporting System Enhancement",
                 description = "Upgrade financial and operational reporting system",
-                startDate = LocalDateTime.parse("2025-08-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-11-30T23:59:59"),
+                startDate = "2025-08-01T00:00:00",
+                endDate = "2025-11-30T23:59:59",
                 projectManager = projectManager5,
-                createdAt = LocalDateTime.parse("2025-03-06T13:00:00"),
+                createdAt = "2025-03-06T13:00:00",
                 tasks = mutableListOf(
                     Task(
                         id = 43,
@@ -525,10 +515,10 @@ class ProjectService {
                 id = 16L,
                 name = "Customer Feedback System",
                 description = "Implement new customer feedback collection and analysis system",
-                startDate = LocalDateTime.parse("2025-04-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-07-31T23:59:59"),
+                startDate = "2025-04-01T00:00:00",
+                endDate = "2025-07-31T23:59:59",
                 projectManager = projectManager1,
-                createdAt = LocalDateTime.parse("2025-03-06T13:45:00"),
+                createdAt = "2025-03-06T13:45:00",
                 tasks = mutableListOf(
                     Task(
                         id = 46,
@@ -558,10 +548,10 @@ class ProjectService {
                 id = 17L,
                 name = "Inventory Management System",
                 description = "Upgrade inventory tracking and management system",
-                startDate = LocalDateTime.parse("2025-06-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-10-31T23:59:59"),
+                startDate = "2025-06-01T00:00:00",
+                endDate = "2025-10-31T23:59:59",
                 projectManager = projectManager2,
-                createdAt = LocalDateTime.parse("2025-03-06T14:30:00"),
+                createdAt = "2025-03-06T14:30:00",
                 tasks = mutableListOf(
                     Task(
                         id = 49,
@@ -591,10 +581,10 @@ class ProjectService {
                 id = 18L,
                 name = "Performance Optimization",
                 description = "Optimize system performance for core business applications",
-                startDate = LocalDateTime.parse("2025-07-15T00:00:00"),
-                endDate = LocalDateTime.parse("2025-09-30T23:59:59"),
+                startDate = "2025-07-15T00:00:00",
+                endDate = "2025-09-30T23:59:59",
                 projectManager = projectManager3,
-                createdAt = LocalDateTime.parse("2025-03-06T15:15:00"),
+                createdAt = "2025-03-06T15:15:00",
                 tasks = mutableListOf(
                     Task(
                         id = 52,
@@ -624,10 +614,10 @@ class ProjectService {
                 id = 19L,
                 name = "HR System Integration",
                 description = "Integrate HR systems with payroll and benefits providers",
-                startDate = LocalDateTime.parse("2025-05-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-08-31T23:59:59"),
+                startDate = "2025-05-01T00:00:00",
+                endDate = "2025-08-31T23:59:59",
                 projectManager = projectManager4,
-                createdAt = LocalDateTime.parse("2025-03-06T16:00:00"),
+                createdAt = "2025-03-06T16:00:00",
                 tasks = mutableListOf(
                     Task(
                         id = 55,
@@ -657,10 +647,10 @@ class ProjectService {
                 id = 20L,
                 name = "Compliance Documentation",
                 description = "Update system documentation for compliance audit",
-                startDate = LocalDateTime.parse("2025-08-15T00:00:00"),
-                endDate = LocalDateTime.parse("2025-10-15T23:59:59"),
+                startDate = "2025-08-15T00:00:00",
+                endDate = "2025-10-15T23:59:59",
                 projectManager = projectManager5,
-                createdAt = LocalDateTime.parse("2025-03-06T16:45:00"),
+                createdAt = "2025-03-06T16:45:00",
                 tasks = mutableListOf(
                     Task(
                         id = 58,
@@ -690,10 +680,10 @@ class ProjectService {
                 id = 21L,
                 name = "Mobile App Redesign",
                 description = "Redesign mobile app with new brand guidelines",
-                startDate = LocalDateTime.parse("2025-09-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-12-15T23:59:59"),
+                startDate = "2025-09-01T00:00:00",
+                endDate = "2025-12-15T23:59:59",
                 projectManager = projectManager1,
-                createdAt = LocalDateTime.parse("2025-03-06T08:30:00"),
+                createdAt = "2025-03-06T08:30:00",
                 tasks = mutableListOf(
                     Task(
                         id = 61,
@@ -723,10 +713,10 @@ class ProjectService {
                 id = 22L,
                 name = "Data Backup System",
                 description = "Implement new enterprise backup and recovery system",
-                startDate = LocalDateTime.parse("2025-04-15T00:00:00"),
-                endDate = LocalDateTime.parse("2025-07-15T23:59:59"),
+                startDate = "2025-04-15T00:00:00",
+                endDate = "2025-07-15T23:59:59",
                 projectManager = projectManager2,
-                createdAt = LocalDateTime.parse("2025-03-06T09:45:00"),
+                createdAt = "2025-03-06T09:45:00",
                 tasks = mutableListOf(
                     Task(
                         id = 64,
@@ -756,10 +746,10 @@ class ProjectService {
                 id = 23L,
                 name = "Single Sign-On Implementation",
                 description = "Implement SSO across all company applications",
-                startDate = LocalDateTime.parse("2025-06-01T00:00:00"),
-                endDate = LocalDateTime.parse("2025-09-30T23:59:59"),
+                startDate = "2025-06-01T00:00:00",
+                endDate = "2025-09-30T23:59:59",
                 projectManager = projectManager3,
-                createdAt = LocalDateTime.parse("2025-03-06T10:15:00"),
+                createdAt = "2025-03-06T10:15:00",
                 tasks = mutableListOf(
                     Task(
                         id = 67,
@@ -789,10 +779,10 @@ class ProjectService {
                 id = 24L,
                 name = "Content Management System Upgrade",
                 description = "Upgrade CMS to latest version with enhanced features",
-                startDate = LocalDateTime.parse("2025-07-15T00:00:00"),
-                endDate = LocalDateTime.parse("2025-10-31T23:59:59"),
+                startDate = "2025-07-15T00:00:00",
+                endDate = "2025-10-31T23:59:59",
                 projectManager = projectManager4,
-                createdAt = LocalDateTime.parse("2025-03-06T11:00:00"),
+                createdAt = "2025-03-06T11:00:00",
                 tasks = mutableListOf(
                     Task(
                         id = 70,
@@ -822,10 +812,10 @@ class ProjectService {
                 id = 25L,
                 name = "Supply Chain Optimization",
                 description = "Optimize supply chain processes and integrations",
-                startDate = LocalDateTime.parse("2025-08-01T00:00:00"),
-                endDate = LocalDateTime.parse("2026-01-31T23:59:59"),
+                startDate = "2025-08-01T00:00:00",
+                endDate = "2026-01-31T23:59:59",
                 projectManager = projectManager5,
-                createdAt = LocalDateTime.parse("2025-03-06T11:30:00"),
+                createdAt = "2025-03-06T11:30:00",
                 tasks = mutableListOf(
                     Task(
                         id = 73,
@@ -851,7 +841,7 @@ class ProjectService {
                 )
             )
         )
-        
+
         return projects
     }
 
@@ -859,19 +849,19 @@ class ProjectService {
         return listOf(
             User(
                 2, firstName = "Jane", lastName = "Smith", username = "jsmith", email = "jsmith@company.com",
-                password = "password", role = UserRole.PROJECT_MANAGER, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.PROJECT_MANAGER, createdAt = "2025-03-06"
             ),
             User(
                 7, firstName = "Robert", lastName = "Wilson", username = "rwilson", email = "rwilson@company.com",
-                password = "password", role = UserRole.PROJECT_MANAGER, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.PROJECT_MANAGER, createdAt = "2025-03-06"
             ),
             User(
                 10, firstName = "Lisa", lastName = "Garcia", username = "lgarcia", email = "lgarcia@company.com",
-                password = "password", role = UserRole.ADMIN, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.ADMIN, createdAt = "2025-03-06"
             ),
             User(
                 3, firstName = "Michael", lastName = "Johnson", username = "mjohnson", email = "mjohnson@company.com",
-                password = "password", role = UserRole.DEVELOPER, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.DEVELOPER, createdAt = "2025-03-06"
             )
         )
     }
@@ -880,52 +870,52 @@ class ProjectService {
         return listOf(
             User(
                 1, firstName = "John", lastName = "Doe", username = "jdoe", email = "jdoe@company.com",
-                password = "password", role = UserRole.ADMIN, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.ADMIN, createdAt = "2025-03-06"
             ),
 
             User(
                 2, firstName = "Jane", lastName = "Smith", username = "jsmith", email = "jsmith@company.com",
-                password = "password", role = UserRole.PROJECT_MANAGER, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.PROJECT_MANAGER, createdAt = "2025-03-06"
             ),
 
             User(
                 3, firstName = "Michael", lastName = "Johnson", username = "mjohnson", email = "mjohnson@company.com",
-                password = "password", role = UserRole.DEVELOPER, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.DEVELOPER, createdAt = "2025-03-06"
             ),
 
             User(
                 4, firstName = "Emily", lastName = "Williams", username = "ewilliams", email = "ewilliams@company.com",
-                password = "password", role = UserRole.TESTER, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.TESTER, createdAt = "2025-03-06"
             ),
 
             User(
                 5, firstName = "David", lastName = "Brown", username = "dbrown", email = "dbrown@company.com",
-                password = "password", role = UserRole.ANALYST, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.ANALYST, createdAt = "2025-03-06"
             ),
 
             User(
                 6, firstName = "Sarah", lastName = "Miller", username = "smiller", email = "smiller@company.com",
-                password = "password", role = UserRole.DEVELOPER, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.DEVELOPER, createdAt = "2025-03-06"
             ),
 
             User(
                 7, firstName = "Robert", lastName = "Wilson", username = "rwilson", email = "rwilson@company.com",
-                password = "password", role = UserRole.PROJECT_MANAGER, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.PROJECT_MANAGER, createdAt = "2025-03-06"
             ),
 
             User(
                 8, firstName = "Jessica", lastName = "Taylor", username = "jtaylor", email = "jtaylor@company.com",
-                password = "password", role = UserRole.TESTER, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.TESTER, createdAt = "2025-03-06"
             ),
 
             User(
                 9, firstName = "Thomas", lastName = "Anderson", username = "tanderson", email = "tanderson@company.com",
-                password = "password", role = UserRole.DEVELOPER, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.DEVELOPER, createdAt = "2025-03-06"
             ),
 
             User(
                 10, firstName = "Lisa", lastName = "Garcia", username = "lgarcia", email = "lgarcia@company.com",
-                password = "password", role = UserRole.ADMIN, createdAt = LocalDateTime.parse("2025-03-06")
+                password = "password", role = UserRole.ADMIN, createdAt = "2025-03-06"
             )
         )
     }
@@ -954,14 +944,4 @@ class ProjectService {
         )
     }
 
-    fun formatDate(date: LocalDate): String {
-        return when (date.month.value) {
-            3 -> "Mar ${date.dayOfMonth}, ${date.year}"
-            5 -> "May ${date.dayOfMonth}, ${date.year}"
-            6 -> "Jun ${date.dayOfMonth}, ${date.year}"
-            7 -> "July ${date.dayOfMonth}, ${date.year}"
-            12 -> "Dec ${date.dayOfMonth}, ${date.year}"
-            else -> date.format(dateFormatter)
-        }
-    }
 }

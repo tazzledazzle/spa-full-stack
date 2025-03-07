@@ -9,6 +9,7 @@ import io.ktor.server.pebble.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import org.koin.ktor.ext.inject
 
 fun Application.registerDashboardRoutes() {
@@ -21,15 +22,15 @@ fun Application.registerDashboardRoutes() {
         }
         get("/dashboard") {
             val projects = projectService.getProjects()
+            val tasks = taskService.getTasks()
+            val teamMembers = projectService.getTeamMembers()
+            val currentUser = projectService.getCurrentUser()
+            val stats = projectService.getDashboardStats()
 
             println("Projects: $projects")
-            val tasks = taskService.getTasks()
             println("Tasks: $tasks")
-            val teamMembers = projectService.getTeamMembers()
             println("Team members: $teamMembers")
-            val currentUser = projectService.getCurrentUser()
             println("Current user: $currentUser")
-            val stats = projectService.getDashboardStats()
             println("Stats: $stats")
 
             val model = mapOf(
@@ -41,14 +42,14 @@ fun Application.registerDashboardRoutes() {
                 "stats" to stats,
                 "projectStatutses" to ProjectStatus.entries.toTypedArray(),
                 "taskStatuses" to TaskStatus.entries.toTypedArray(),
-                "formatDate" to {date: Any ->
-                    if (date is LocalDate) {
-                        projectService.formatDate(date)
-                    }
-                    else {
-                        date.toString()
-                    }
-                }
+//                "formatDate" to {date: Any ->
+//                    if (date is LocalDateTime) {
+//                        projectService.formatDate(date)
+//                    }
+//                    else {
+//                        date.toString()
+//                    }
+//                }
             )
 
             call.respond(PebbleContent("dashboard.peb", model))
@@ -57,5 +58,19 @@ fun Application.registerDashboardRoutes() {
         get("/test") {
             call.respondText("Hello, World!")
         }
+
+        get("/projects") {
+            TODO()
+        }
+
+        get("/tasks") {
+            TODO()
+        }
+
+        get("/time-log") {
+            TODO()
+        }
+
+
     }
 }

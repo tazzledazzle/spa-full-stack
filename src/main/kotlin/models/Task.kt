@@ -18,7 +18,7 @@ data class Task (
      */
     var progress: Double? = 0.0,
 
-    var createdAt: LocalDateTime? = null,
+    var createdAt: String? = null,
     var priority: TaskPriority = TaskPriority.LOW,
     var project: Project? = null
 ) {

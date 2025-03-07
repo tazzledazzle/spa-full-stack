@@ -1,6 +1,6 @@
-    {% extends "base.peb" %}
+{% extends "base.peb" %}
 
-        {% block content %}
+{% block content %}
     <div class="dashboard">
         <section class="overview-section">
             <div class="section-header">
@@ -107,7 +107,7 @@
                                 <div class="td-date">{{ project.endDate }}</div>
                                 <div class="td-status">
                                     <span class="status-badge status-{{ project.status | lower }}">
-                                        {{ project.status | replace("_", " ") | capitalize }}
+                                        {{ project.status }}
                                     </span>
                                 </div>
                                 <div class="td-progress">
@@ -189,8 +189,8 @@
                             <div class="task-content">
                                 <div class="task-description">{{ task.description }}</div>
                                 <div class="task-status">
-                                    <span class="task-badge task-{{ task.status | lower | replace('_', '-') }}">
-                                        {{ task.status | replace("_", " ") | capitalize }}
+                                    <span class="task-badge task-{{ task.status | lower }}">
+                                        {{ task.status }}
                                     </span>
                                 </div>
                             </div>
@@ -213,11 +213,7 @@
                         <div class="team-member">
                             <div class="member-name">{{ member.name }}</div>
                             <div class="task-stacks">
-                                {% for i in range(0, member.taskCount) %}
-                                    <div class="task-stack-item {% if i == 0 %}active{% endif %}"></div>
-                                {% endfor %}
-                            </div>
-                            <div class="task-count">{{ member.taskCount < 10 ? '0' : '' }}{{ member.taskCount }}</div>
+
                         </div>
                     {% endfor %}
                 </div>
@@ -226,7 +222,7 @@
     </div>
 {% endblock %}
 
-    {% block scripts %}
+{% block scripts %}
     <script>
         // Initialize circular progress charts
         document.querySelectorAll('.progress-circle').forEach(circle => {
