@@ -8,8 +8,6 @@ import io.ktor.server.application.*
 import io.ktor.server.pebble.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import org.koin.ktor.ext.inject
 
 fun Application.registerDashboardRoutes() {
@@ -52,7 +50,7 @@ fun Application.registerDashboardRoutes() {
 //                }
             )
 
-            call.respond(PebbleContent("dashboard.peb", model))
+            call.respond(PebbleContent("first.peb", model))
         }
 
         get("/test") {

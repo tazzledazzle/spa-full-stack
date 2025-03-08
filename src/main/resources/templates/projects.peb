@@ -1,0 +1,95 @@
+{% extends "dashboard" %}
+{% block projectsSection %}
+    <section class="projects-section">
+            <div class="project-list-container">
+                <div class="section-header">
+                    <h2>Project summary</h2>
+                    <div class="filter-options">
+                        <div class="filter-dropdown">
+                            <span>Project</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown">
+                            <span>Project manager</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown">
+                            <span>Status</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-table">
+                    <div class="table-header">
+                        <div class="th-name">Name</div>
+                        <div class="th-manager">Project manager</div>
+                        <div class="th-date">Due date</div>
+                        <div class="th-status">Status</div>
+                        <div class="th-progress">Progress</div>
+                    </div>
+
+                    <div class="table-body">
+                        {% for project in projects %}
+                            <div class="table-row">
+                                <div class="td-name">{{ project.name }}</div>
+                                <div class="td-manager">{{ project.projectManagerId }}</div>
+                                <div class="td-date">{{ project.endDate }}</div>
+                                <div class="td-status">
+                                    <span class="status-badge status-{{ project.status | lower }}">
+                                        {{ project.status }}
+                                    </span>
+                                </div>
+                                <div class="td-progress">
+                                    <div class="progress-circle" data-progress="{{ project.progress }}">
+                                        <span class="progress-text">{{ project.progress }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="overall-progress">
+                <div class="section-header">
+                    <h2>Overall Progress</h2>
+                    <div class="filter-dropdown">
+                        <span>All</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <div class="progress-chart">
+                    <div class="progress-meter">
+                        <div class="progress-gauge">
+                            <div class="gauge-value" data-value="{{ stats.completionPercentage }}"></div>
+                            <div class="gauge-center">
+                                <div class="gauge-percentage">{{ stats.completionPercentage }}%</div>
+                                <div class="gauge-label">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-stats">
+                        <div class="stat-item total">
+                            <div class="stat-number">{{ stats.projectCount }}</div>
+                            <div class="stat-label">Total projects</div>
+                        </div>
+                        <div class="stat-item completed">
+                            <div class="stat-number">{{ stats.completedProjects }}</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-item delayed">
+                            <div class="stat-number">{{ stats.delayedProjects }}</div>
+                            <div class="stat-label">Delayed</div>
+                        </div>
+                        <div class="stat-item ongoing">
+                            <div class="stat-number">{{ stats.ongoingProjects }}</div>
+                            <div class="stat-label">On going</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+{% endblock %}
