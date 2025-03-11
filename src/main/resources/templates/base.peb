@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ pageTitle }}{% endblock %} - Promage</title>
+    <title>{% block title %}{{ pageTitle }}{% endblock %} - NorthShore</title>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -22,7 +22,7 @@
             <div class="logo-container">
                 <div class="logo">
                     <i class="fa-solid fa-circle-notch"></i>
-                    <span>Promage</span>
+                    <span>NorthShore</span>
                 </div>
                 <button class="toggle-sidebar-btn">
                     <i class="fa-solid fa-chevron-left"></i>

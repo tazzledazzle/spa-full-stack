@@ -1,25 +1,19 @@
 package com.northshore
 
-import com.northshore.module
 import com.northshore.services.ProjectService
 import com.northshore.services.TaskService
 import io.ktor.http.*
-import io.ktor.http.ContentDisposition.Companion.File
 import io.ktor.server.application.*
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.http.content.resources
-import io.ktor.server.http.content.static
-import io.ktor.server.http.content.staticFiles
-import io.ktor.server.http.content.staticResources
-import io.ktor.server.netty.Netty
-import io.ktor.server.pebble.Pebble
-import io.ktor.server.plugins.calllogging.CallLogging
-import io.ktor.server.plugins.cors.routing.CORS
-import io.ktor.server.plugins.defaultheaders.DefaultHeaders
-import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.routing
-import io.netty.handler.logging.LogLevel
+import io.ktor.server.engine.*
+import io.ktor.server.http.content.*
+import io.ktor.server.netty.*
+import io.ktor.server.pebble.*
+import io.ktor.server.plugins.calllogging.*
+import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.defaultheaders.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.pebbletemplates.pebble.loader.ClasspathLoader
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
@@ -28,7 +22,7 @@ import org.slf4j.event.Level
 import java.io.File
 
 fun main() {
- embeddedServer(Netty, port = 8081, host = "localhost", module = Application::module).start(wait = true)
+ embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module).start(wait = true)
 }
 
 fun Application.module() {

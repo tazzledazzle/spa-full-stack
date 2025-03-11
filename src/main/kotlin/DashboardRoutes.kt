@@ -41,15 +41,7 @@ fun Application.registerDashboardRoutes() {
                 "currentUser" to currentUser,
                 "stats" to stats,
                 "projectStatutses" to ProjectStatus.entries.toTypedArray(),
-                "taskStatuses" to TaskStatus.entries.toTypedArray(),
-//                "formatDate" to {date: Any ->
-//                    if (date is LocalDateTime) {
-//                        projectService.formatDate(date)
-//                    }
-//                    else {
-//                        date.toString()
-//                    }
-//                }
+                "taskStatuses" to TaskStatus.entries.toTypedArray()
             )
 
             call.respond(PebbleContent("dashboard.peb", model))

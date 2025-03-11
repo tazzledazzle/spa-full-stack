@@ -921,7 +921,10 @@ class ProjectService {
     }
 
     fun getCurrentUser(): User {
-        return User(8, "Alex melan", "Product manager")
+        return User(
+            10, firstName = "Lisa", lastName = "Garcia", username = "lgarcia", email = "lgarcia@company.com",
+            password = "password", role = UserRole.ADMIN, createdAt = "2025-03-06"
+        )
     }
 
     fun getDashboardStats(): DashboardStats {
