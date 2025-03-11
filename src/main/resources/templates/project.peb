@@ -11,15 +11,33 @@
                 <div class="stat-card">
                     <h3 class="stat-title">Start Date</h3>
                     <p class="stat-value start-date">{{ project.startDate }}</p>
-                </div>
-                <div class="stat-card">
-                    <h3 class="stat-title">End Date</h3>
+                     <h3 class="stat-title">End Date</h3>
                     <p class="stat-value end-date">{{ project.endDate }}</p>
-                </div>
-                <div class="stat-card">
                     <h3 class="stat-title">Status</h3>
                     <p class="stat-value status">{{ project.status }}</p>
                 </div>
+                <div class="stat-card">
+                    {% for task in project.tasks %}
+                        <h3 class="stat-title">Task</h3>
+                        <p class="stat-value taskName">{{  task.name}}</p>
+                        <h3 class="stat-title">Task Description</h3>
+                        <p class="stat-value taskDescription">{{ task.description }}</p>
+                        <h3 class="stat-title">Task Status</h3>
+                        <p class="stat-value taskStatus">{{ task.status }}</p>
+                        <h3 class="stat-title">Task Start Date</h3>
+                        <p class="stat-value taskStartDate">{{ task.startDate }}</p>
+                        <h3 class="stat-title">Task End Date</h3>
+                        <p class="stat-value taskEndDate">{{ task.endDate }}</p>
+                        <h3 class="stat-title">Task Priority</h3>
+                        <p class="stat-value taskPriority">{{ task.priority }}</p>
+                        <h3 class="stat-title">Task Progress</h3>
+                        <p class="stat-value taskProgress">{{ task.progress }}</p>
+                    {% endfor %}
+
+
+                {% endfor %}
+                </div>
+
 
 
     </section>
