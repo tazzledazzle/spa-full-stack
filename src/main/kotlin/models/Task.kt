@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 data class Task (
     var id: Long? = null,
 
-    var projectId: Long = 0L, //todo: Project Object
+    var projectId: Long = 0L,
     var name: String = "",
     var description: String = "",
     var estimatedHours: Double = 0.0,

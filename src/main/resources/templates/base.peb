@@ -11,6 +11,9 @@
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+
+
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/css/dashboard.css">
 
@@ -31,7 +34,7 @@
 
             <div class="create-project-btn">
                 <i class="fa-solid fa-plus"></i>
-                <span>Create new project</span>
+                <span>Create a new project</span>
             </div>
 
             <nav class="sidebar-nav">

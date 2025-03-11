@@ -1,0 +1,66 @@
+<div class="section-header">
+    <h2>Overview</h2>
+    <div class="filter-dropdown">
+        <span>Last 30 days</span>
+        <i class="fa-solid fa-chevron-down"></i>
+    </div>
+</div>
+
+
+<div class="stats-cards">
+    <div class="stat-card revenue-card">
+        <div class="stat-icon">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-label">Total revenue</div>
+            <div class="stat-value">${{ stats.totalRevenue | numberformat("#,###.00") }}</div>
+            <div class="stat-change increase">
+                <i class="fa-solid fa-arrow-up"></i>
+                {{ stats.revenueIncrease }}% increased from last month
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card projects-card">
+        <div class="stat-icon">
+            <i class="fa-solid fa-briefcase"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-label">Projects</div>
+            <div class="stat-value">{{ stats.projectCount }} <span class="stat-total">/{{ stats.projectTotal }}</span></div>
+            <div class="stat-change decrease">
+                <i class="fa-solid fa-arrow-down"></i>
+                {{ stats.projectDecrease }}% decrease from last month
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card time-card">
+        <div class="stat-icon">
+            <i class="fa-regular fa-clock"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-label">Time spent</div>
+            <div class="stat-value">{{ stats.timeSpent }} <span class="stat-total">/{{ stats.timeTotal }} Hrs</span></div>
+            <div class="stat-change increase">
+                <i class="fa-solid fa-arrow-up"></i>
+                {{ stats.timeIncrease }}% increase from last month
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card resources-card">
+        <div class="stat-icon">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-label">Resources</div>
+            <div class="stat-value">{{ stats.resourceCount }} <span class="stat-total">/{{ stats.resourceTotal }}</span></div>
+            <div class="stat-change increase">
+                <i class="fa-solid fa-arrow-up"></i>
+                {{ stats.resourceIncrease }}% increase from last month
+            </div>
+        </div>
+    </div>
+</div>
