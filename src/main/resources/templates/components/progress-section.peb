@@ -17,7 +17,7 @@
                 </div>
             </div>
         </div>
-
+        </br>
         <div class="project-stats">
             <div class="stat-item total">
                 <div class="stat-number">{{ stats.projectCount }}</div>

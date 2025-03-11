@@ -1,6 +1,6 @@
-{% extends "base.peb" %}
+    {% extends "base.peb" %}
 
-{% block content %}
+        {% block content %}
     <div class="dashboard">
         <section class="overview-section">
             {% include "components/stat-cards.peb" %}
@@ -8,7 +8,7 @@
         
         <section class="projects-section">
             {% include "components/project-overview.peb" %}
-            {% include "components/progress-section.peb" %}
+        {% include "components/progress-section.peb" %}
         </section>
         
         <section class="tasks-workload-section">
@@ -18,7 +18,7 @@
     </div>
 {% endblock %}
 
-{% block scripts %}
+        {% block scripts %}
     <script>
         // Initialize circular progress charts
         document.querySelectorAll('.progress-circle').forEach(circle => {

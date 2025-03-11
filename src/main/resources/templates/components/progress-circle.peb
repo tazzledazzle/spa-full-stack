@@ -1,0 +1,77 @@
+{# Define the progress circle macro #}
+{% macro progressCircle(progress, size, color, label, thickness, showPercentage) %}
+    {% set normalizedProgress = min(100, max(0, progress)) %}
+    {% set radius = 40 %}
+    {% set circumference = 2 * 3.14159 * radius %}
+    {% set strokeDashoffset = circumference - (normalizedProgress / 100) * circumference %}
+
+    {% set sizeClass = "width: 6rem; height: 6rem;" %}
+    {% if size == "sm" %}{% set sizeClass = "width: 4rem; height: 4rem;" %}
+        {% elseif size == "lg" %}{% set sizeClass = "width: 8rem; height: 8rem;" %}
+        {% elseif size == "xl" %}{% set sizeClass = "width: 10rem; height: 10rem;" %}
+    {% endif %}
+
+    {% set strokeColor = "#3b82f6" %}
+    {% if color == "green" %}{% set strokeColor = "#22c55e" %}
+        {% elseif color == "red" %}{% set strokeColor = "#ef4444" %}
+        {% elseif color == "purple" %}{% set strokeColor = "#8b5cf6" %}
+        {% elseif color == "yellow" %}{% set strokeColor = "#eab308" %}
+    {% endif %}
+
+    {% set textColor = "#1d4ed8" %}
+    {% if color == "green" %}{% set textColor = "#15803d" %}
+        {% elseif color == "red" %}{% set textColor = "#b91c1c" %}
+        {% elseif color == "purple" %}{% set textColor = "#6d28d9" %}
+        {% elseif color == "yellow" %}{% set textColor = "#a16207" %}
+    {% endif %}
+
+    {% set strokeWidth = 4 %}
+    {% if thickness == "thin" %}{% set strokeWidth = 2 %}
+        {% elseif thickness == "thick" %}{% set strokeWidth = 6 %}
+    {% endif %}
+
+    {% set fontSizeClass = "font-size: 0.875rem;" %}
+    {% if size == "sm" %}{% set fontSizeClass = "font-size: 0.75rem;" %}
+        {% elseif size == "lg" %}{% set fontSizeClass = "font-size: 1rem;" %}
+        {% elseif size == "xl" %}{% set fontSizeClass = "font-size: 1.125rem;" %}
+    {% endif %}
+
+    <div style="position: relative; display: inline-flex; align-items: center; justify-content: center; {{ sizeClass }} border-radius: 9999px; background-color: #f3f4f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <svg style="position: absolute; width: 100%; height: 100%;" viewBox="0 0 100 100">
+            <circle
+                cx="50"
+                cy="50"
+                r="{{ radius }}"
+                fill="none"
+                stroke="#e5e7eb"
+                stroke-width="{{ strokeWidth }}"
+            />
+            <circle
+                cx="50"
+                cy="50"
+                r="{{ radius }}"
+                fill="none"
+                stroke="{{ strokeColor }}"
+                stroke-width="{{ strokeWidth }}"
+                stroke-linecap="round"
+                stroke-dasharray="{{ circumference }}"
+                stroke-dashoffset="{{ strokeDashoffset }}"
+                transform="rotate(-90 50 50)"
+                style="transition: stroke-dashoffset 0.5s ease-in-out;"
+            />
+        </svg>
+
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+            {% if showPercentage %}
+                <span style="font-weight: 600; {{ fontSizeClass }} color: {{ textColor }};">
+                    {{ normalizedProgress | numberformat("#") }}%
+                </span>
+            {% endif %}
+            {% if label %}
+                <span style="font-size: 0.75rem; color: #4b5563; margin-top: 0.25rem;">
+                    {{ label }}
+                </span>
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}

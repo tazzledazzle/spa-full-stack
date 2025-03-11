@@ -944,7 +944,7 @@ class ProjectService {
             completedProjects = 26,
             delayedProjects = 35,
             ongoingProjects = 35,
-            completionPercentage = 72
+            completionPercentage = 70
         )
     }
 

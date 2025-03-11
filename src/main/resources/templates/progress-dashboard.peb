@@ -1,0 +1,42 @@
+    {% import "components/progress-circle.peb" as progress %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h1>Project Status</h1>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+        {{ progress.progressCircle(
+    designProgress,
+    "md",
+    "purple",
+    "Design",
+    "thick",
+    true
+    ) }}
+
+    {{ progress.progressCircle(
+    devProgress,
+    "md",
+    "blue",
+    "Development",
+    "normal",
+    true
+    ) }}
+
+    {{ progress.progressCircle(
+    testingProgress,
+    "md",
+    "green",
+    "Testing",
+    "normal",
+    true
+    ) }}
+    </div>
+</body>
+</html>

@@ -18,8 +18,11 @@
                 </div>
                 <div class="stat-card">
                     {% for task in project.tasks %}
-                        <h3 class="stat-title">Task</h3>
-                        <p class="stat-value taskName">{{  task.name}}</p>
+                    <div class="task-item">
+                        <div class="task-content">
+
+
+                        <h2 class="stat-title stat-value taskName">{{task.name}}</h2>
                         <h3 class="stat-title">Task Description</h3>
                         <p class="stat-value taskDescription">{{ task.description }}</p>
                         <h3 class="stat-title">Task Status</h3>
@@ -32,10 +35,9 @@
                         <p class="stat-value taskPriority">{{ task.priority }}</p>
                         <h3 class="stat-title">Task Progress</h3>
                         <p class="stat-value taskProgress">{{ task.progress }}</p>
+                        </div>
+                    </div>
                     {% endfor %}
-
-
-                {% endfor %}
                 </div>
 
 

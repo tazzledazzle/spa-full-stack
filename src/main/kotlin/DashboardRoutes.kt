@@ -60,6 +60,17 @@ fun Application.registerDashboardRoutes() {
             call.respond(PebbleContent("projects.peb", model))
         }
 
+        get("/project-dashboard") {
+            call.respond(PebbleContent(
+                "progress-dashboard.peb",
+                mapOf(
+                    "designProgress" to 75,
+                    "devProgress" to 45,
+                    "testingProgress" to 20
+                )
+            ))
+        }
+
         get("/projects/{id}") {
             val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
 //            if (id == null) {
