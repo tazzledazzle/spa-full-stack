@@ -1,0 +1,19 @@
+<div class="projects-workload">
+    <div class="section-header">
+        <h2>Projects Workload</h2>
+        <div class="filter-dropdown">
+            <span>Last 3 months</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+    </div>
+
+    <div class="workload-chart">
+        {% for member in teamMembers %}
+            <div class="team-member">
+                <div class="member-name">{{ member.name }}</div>
+                <div class="task-stacks">
+
+            </div>
+        {% endfor %}
+    </div>
+</div>

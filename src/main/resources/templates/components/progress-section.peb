@@ -1,0 +1,40 @@
+<div class="overall-progress">
+    <div class="section-header">
+        <h2>Overall Progress</h2>
+        <div class="filter-dropdown">
+            <span>All</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+    </div>
+
+    <div class="progress-chart">
+        <div class="progress-meter">
+            <div class="progress-gauge">
+                <div class="gauge-value" data-value="{{ stats.completionPercentage }}"></div>
+                <div class="gauge-center">
+                    <div class="gauge-percentage">{{ stats.completionPercentage }}%</div>
+                    <div class="gauge-label">Completed</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="project-stats">
+            <div class="stat-item total">
+                <div class="stat-number">{{ stats.projectCount }}</div>
+                <div class="stat-label">Total projects</div>
+            </div>
+            <div class="stat-item completed">
+                <div class="stat-number">{{ stats.completedProjects }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-item delayed">
+                <div class="stat-number">{{ stats.delayedProjects }}</div>
+                <div class="stat-label">Delayed</div>
+            </div>
+            <div class="stat-item ongoing">
+                <div class="stat-number">{{ stats.ongoingProjects }}</div>
+                <div class="stat-label">On going</div>
+            </div>
+        </div>
+    </div>
+</div>
