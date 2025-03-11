@@ -68,7 +68,7 @@ fun Application.module() {
     registerDashboardRoutes()
 }
 
-val appModule = module() {
+val appModule = module {
     single { ProjectService() }
     single { TaskService() }
 }

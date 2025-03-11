@@ -6,10 +6,30 @@ import com.northshore.models.*
 class ProjectService {
     val projectManager1 =
         User(1, "John", "Doe", "jdoe", "jdoe@company.com", "password", UserRole.ADMIN, "2025-03-06")
-    val projectManager2 = User(2, "Jane", "Smith", "jsmith", "jsmith@company.com", "password", UserRole.PROJECT_MANAGER, "2025-03-06")
-    val projectManager3 = User(3, "Michael", "Johnson", "mjohnson", "mjohnson@company.com", "password", UserRole.PROJECT_MANAGER, "2025-03-06")
-    val projectManager4 = User(4, "Emily", "Williams", "ewilliams", "ewilliams@company.com", "password", UserRole.PROJECT_MANAGER, "2025-03-06")
-    val projectManager5 = User(5, "David", "Brown", "dbrown", "dbrown@company.com", "password", UserRole.ADMIN, "2025-03-06")
+    val projectManager2 =
+        User(2, "Jane", "Smith", "jsmith", "jsmith@company.com", "password", UserRole.PROJECT_MANAGER, "2025-03-06")
+    val projectManager3 = User(
+        3,
+        "Michael",
+        "Johnson",
+        "mjohnson",
+        "mjohnson@company.com",
+        "password",
+        UserRole.PROJECT_MANAGER,
+        "2025-03-06"
+    )
+    val projectManager4 = User(
+        4,
+        "Emily",
+        "Williams",
+        "ewilliams",
+        "ewilliams@company.com",
+        "password",
+        UserRole.PROJECT_MANAGER,
+        "2025-03-06"
+    )
+    val projectManager5 =
+        User(5, "David", "Brown", "dbrown", "dbrown@company.com", "password", UserRole.ADMIN, "2025-03-06")
 
     val projects = listOf(
         Project(
@@ -952,4 +972,7 @@ class ProjectService {
         return projects.find { it.id == id }!!
     }
 
+    fun getTimeLogEntries() {
+        TODO("Not yet implemented")
+    }
 }

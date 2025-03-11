@@ -2,10 +2,22 @@ package com.northshore.services
 
 import com.northshore.com.northshore.models.TaskPriority
 import com.northshore.models.Task
-import com.northshore.models.TaskStatus
+import java.sql.Connection
+import java.sql.DriverManager
+import java.util.Properties
+import javax.sql.DataSource
 
 
 class TaskService {
+    private lateinit var db: Connection
+    init {
+        val props = Properties()
+        props.load(TaskService::class.java.getResourceAsStream("/postgres.properties"))
+        props.keys.forEach {
+            println(it)
+        }
+         db = DriverManager.getConnection(props["db.url"].toString())
+    }
     fun getTasks(): List<Task> {
         return listOf(
             Task(
@@ -50,6 +62,22 @@ class TaskService {
                 description = "Develop native iOS application using Swift",
                 priority = TaskPriority.MEDIUM
             )
+        )
+    }
+
+    fun getTaskById(id: Long): Task {
+        val resultSet = db.createStatement().executeQuery("select * from task where id = :id")
+        resultSet.getObject("task").toString()
+
+        return Task (
+            id = resultSet.getLong("id"),
+            projectId = resultSet.getLong("projectId"),
+            name = resultSet.getString("name"),
+            description = resultSet.getString("description"),
+            estimatedHours = resultSet.getDouble("estimated_hours"),
+            progress = resultSet.getDouble("progress"),
+            createdAt = resultSet.getString("created_at"),
+            priority = TaskPriority.valueOf(resultSet.getString("priority"))
         )
     }
 }

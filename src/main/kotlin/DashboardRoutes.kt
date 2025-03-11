@@ -26,11 +26,6 @@ fun Application.registerDashboardRoutes() {
             val currentUser = projectService.getCurrentUser()
             val stats = projectService.getDashboardStats()
 
-            println("Projects: $projects")
-            println("Tasks: $tasks")
-            println("Team members: $teamMembers")
-            println("Current user: $currentUser")
-            println("Stats: $stats")
 
             val model = mapOf(
                 "pageTitle" to "NorthShore Dashboard",
@@ -73,10 +68,6 @@ fun Application.registerDashboardRoutes() {
 
         get("/projects/{id}") {
             val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
-//            if (id == null) {
-//                call.respondText("Invalid project ID", status = HttpStatusCode.BadRequest)
-//                return@get
-//            }
 
             val project = projectService.getProjectById(id)
             if (project == null) {
@@ -93,11 +84,15 @@ fun Application.registerDashboardRoutes() {
         }
 
         get("/tasks") {
-            TODO()
+            val tasks = taskService.getTasks()
+            val model = mapOf(
+                "pageTitle" to "Tasks",
+                "tasks" to tasks
+            )
         }
 
         get("/time-log") {
-            TODO()
+            val entries = projectService.getTimeLogEntries()
         }
 
 

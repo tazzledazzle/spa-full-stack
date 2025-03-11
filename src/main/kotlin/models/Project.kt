@@ -1,13 +1,12 @@
 package com.northshore.models
 
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Project (
     var id: Long = 0L,
 
-    var projectManagerId: Long = 0L, // todo: User Object
+    var projectManagerId: Long = 0L,
 
     var name: String = "",
 
