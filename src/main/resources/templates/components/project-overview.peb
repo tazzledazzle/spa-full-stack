@@ -1,0 +1,49 @@
+<div class="project-list-container">
+    <div class="section-header">
+        <h2>Project summary</h2>
+        <div class="filter-options">
+            <div class="filter-dropdown">
+                <span>Project</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="filter-dropdown">
+                <span>Project manager</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="filter-dropdown">
+                <span>Status</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="project-table">
+        <div class="table-header">
+            <div class="th-name">Name</div>
+            <div class="th-manager">Project manager</div>
+            <div class="th-date">Due date</div>
+            <div class="th-status">Status</div>
+            <div class="th-progress">Progress</div>
+        </div>
+
+        <div class="table-body">
+            {% for project in projects %}
+                <div class="table-row">
+                    <div class="td-name">{{ project.name }}</div>
+                    <div class="td-manager">{{ project.projectManagerId }}</div>
+                    <div class="td-date">{{ project.endDate }}</div>
+                    <div class="td-status">
+                        <span class="status-badge status-{{ project.status | lower }}">
+                            {{ project.status }}
+                        </span>
+                    </div>
+                    <div class="td-progress">
+                        <div class="progress-circle" data-progress="{{ project.progress }}">
+                            <span class="progress-text">{{ project.progress }}%</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
