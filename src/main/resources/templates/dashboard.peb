@@ -1,228 +1,24 @@
-{% extends "base.peb" %}
+    {% extends "base.peb" %}
 
-{% block content %}
+        {% block content %}
     <div class="dashboard">
         <section class="overview-section">
-            <div class="section-header">
-                <h2>Overview</h2>
-                <div class="filter-dropdown">
-                    <span>Last 30 days</span>
-                    <i class="fa-solid fa-chevron-down"></i>
-                </div>
-            </div>
-            
-            <div class="stats-cards">
-                <div class="stat-card revenue-card">
-                    <div class="stat-icon">
-                        <i class="fa-solid fa-chart-line"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-label">Total revenue</div>
-                        <div class="stat-value">${{ stats.totalRevenue | numberformat("#,###.00") }}</div>
-                        <div class="stat-change increase">
-                            <i class="fa-solid fa-arrow-up"></i>
-                            {{ stats.revenueIncrease }}% increase from last month
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="stat-card projects-card">
-                    <div class="stat-icon">
-                        <i class="fa-solid fa-briefcase"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-label">Projects</div>
-                        <div class="stat-value">{{ stats.projectCount }} <span class="stat-total">/{{ stats.projectTotal }}</span></div>
-                        <div class="stat-change decrease">
-                            <i class="fa-solid fa-arrow-down"></i>
-                            {{ stats.projectDecrease }}% decrease from last month
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="stat-card time-card">
-                    <div class="stat-icon">
-                        <i class="fa-regular fa-clock"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-label">Time spent</div>
-                        <div class="stat-value">{{ stats.timeSpent }} <span class="stat-total">/{{ stats.timeTotal }} Hrs</span></div>
-                        <div class="stat-change increase">
-                            <i class="fa-solid fa-arrow-up"></i>
-                            {{ stats.timeIncrease }}% increase from last month
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="stat-card resources-card">
-                    <div class="stat-icon">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-label">Resources</div>
-                        <div class="stat-value">{{ stats.resourceCount }} <span class="stat-total">/{{ stats.resourceTotal }}</span></div>
-                        <div class="stat-change increase">
-                            <i class="fa-solid fa-arrow-up"></i>
-                            {{ stats.resourceIncrease }}% increase from last month
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% include "components/stat-cards.peb" %}
         </section>
         
         <section class="projects-section">
-            <div class="project-list-container">
-                <div class="section-header">
-                    <h2>Project summary</h2>
-                    <div class="filter-options">
-                        <div class="filter-dropdown">
-                            <span>Project</span>
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </div>
-                        <div class="filter-dropdown">
-                            <span>Project manager</span>
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </div>
-                        <div class="filter-dropdown">
-                            <span>Status</span>
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="project-table">
-                    <div class="table-header">
-                        <div class="th-name">Name</div>
-                        <div class="th-manager">Project manager</div>
-                        <div class="th-date">Due date</div>
-                        <div class="th-status">Status</div>
-                        <div class="th-progress">Progress</div>
-                    </div>
-                    
-                    <div class="table-body">
-                        {% for project in projects %}
-                            <div class="table-row">
-                                <div class="td-name">{{ project.name }}</div>
-                                <div class="td-manager">{{ project.projectManagerId }}</div>
-                                <div class="td-date">{{ project.endDate }}</div>
-                                <div class="td-status">
-                                    <span class="status-badge status-{{ project.status | lower }}">
-                                        {{ project.status }}
-                                    </span>
-                                </div>
-                                <div class="td-progress">
-                                    <div class="progress-circle" data-progress="{{ project.progress }}">
-                                        <span class="progress-text">{{ project.progress }}%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            
-            <div class="overall-progress">
-                <div class="section-header">
-                    <h2>Overall Progress</h2>
-                    <div class="filter-dropdown">
-                        <span>All</span>
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </div>
-                </div>
-                
-                <div class="progress-chart">
-                    <div class="progress-meter">
-                        <div class="progress-gauge">
-                            <div class="gauge-value" data-value="{{ stats.completionPercentage }}"></div>
-                            <div class="gauge-center">
-                                <div class="gauge-percentage">{{ stats.completionPercentage }}%</div>
-                                <div class="gauge-label">Completed</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="project-stats">
-                        <div class="stat-item total">
-                            <div class="stat-number">{{ stats.projectCount }}</div>
-                            <div class="stat-label">Total projects</div>
-                        </div>
-                        <div class="stat-item completed">
-                            <div class="stat-number">{{ stats.completedProjects }}</div>
-                            <div class="stat-label">Completed</div>
-                        </div>
-                        <div class="stat-item delayed">
-                            <div class="stat-number">{{ stats.delayedProjects }}</div>
-                            <div class="stat-label">Delayed</div>
-                        </div>
-                        <div class="stat-item ongoing">
-                            <div class="stat-number">{{ stats.ongoingProjects }}</div>
-                            <div class="stat-label">On going</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% include "components/project-overview.peb" %}
+        {% include "components/progress-section.peb" %}
         </section>
         
         <section class="tasks-workload-section">
-            <div class="today-tasks">
-                <div class="section-header">
-                    <h2>Today task</h2>
-                </div>
-                
-                <div class="tasks-tabs">
-                    <div class="tab active">All <span class="tab-count">10</span></div>
-                    <div class="tab">Important</div>
-                    <div class="tab">Notes <span class="tab-count">5</span></div>
-                    <div class="tab">Links <span class="tab-count">10</span></div>
-                </div>
-                
-                <div class="tasks-list">
-                    {% for task in tasks %}
-                        <div class="task-item {% if task.isCompleted %}completed{% endif %}">
-                            <div class="task-checkbox">
-                                {% if task.isCompleted %}
-                                    <i class="fa-solid fa-check-circle"></i>
-                                {% else %}
-                                    <i class="fa-regular fa-circle"></i>
-                                {% endif %}
-                            </div>
-                            <div class="task-content">
-                                <div class="task-description">{{ task.description }}</div>
-                                <div class="task-status">
-                                    <span class="task-badge task-{{ task.status | lower }}">
-                                        {{ task.status }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            
-            <div class="projects-workload">
-                <div class="section-header">
-                    <h2>Projects Workload</h2>
-                    <div class="filter-dropdown">
-                        <span>Last 3 months</span>
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </div>
-                </div>
-                
-                <div class="workload-chart">
-                    {% for member in teamMembers %}
-                        <div class="team-member">
-                            <div class="member-name">{{ member.name }}</div>
-                            <div class="task-stacks">
-
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
+            {% include "components/tasks-section.peb" %}
+            {% include "components/workload-section.peb" %}
         </section>
     </div>
 {% endblock %}
 
-{% block scripts %}
+        {% block scripts %}
     <script>
         // Initialize circular progress charts
         document.querySelectorAll('.progress-circle').forEach(circle => {

@@ -512,7 +512,7 @@ body {
     position: relative;
     width: 220px;
     height: 110px;
-    margin-top: 30px;
+    margin-top: 15px;
 }
 
 .progress-gauge {
@@ -577,6 +577,7 @@ body {
 }
 
 .project-stats {
+    padding-top: 40px!important;
     display: flex;
     justify-content: space-around;
     width: 100%;

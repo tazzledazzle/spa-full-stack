@@ -17,6 +17,11 @@ class ApplicationTest {
         client.get("/test").apply {
             assertEquals(HttpStatusCode.OK, status)
         }
+
+
+        client.get("/dashboard").apply {
+            assertEquals(HttpStatusCode.Found, status)
+        }
     }
 
 }

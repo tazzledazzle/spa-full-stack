@@ -1,0 +1,6 @@
+{% extends "base.peb" %}
+
+
+{% block content %}
+{% include "components/project-overview.peb" %}
+{% endblock %}

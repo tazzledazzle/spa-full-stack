@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ pageTitle }}{% endblock %} - Promage</title>
+    <title>{% block title %}{{ pageTitle }}{% endblock %} - NorthShore</title>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -22,7 +22,7 @@
             <div class="logo-container">
                 <div class="logo">
                     <i class="fa-solid fa-circle-notch"></i>
-                    <span>Promage</span>
+                    <span>NorthShore</span>
                 </div>
                 <button class="toggle-sidebar-btn">
                     <i class="fa-solid fa-chevron-left"></i>
@@ -31,7 +31,7 @@
 
             <div class="create-project-btn">
                 <i class="fa-solid fa-plus"></i>
-                <span>Create new project</span>
+                <span>Create a new project</span>
             </div>
 
             <nav class="sidebar-nav">
@@ -90,10 +90,10 @@
 
                     <div class="user-profile">
                         <div class="user-avatar">
-                            <img src="https://ui-avatars.com/api/?name={{ currentUser.name }}&background=0D8ABC&color=fff" alt="{{ currentUser.name }}">
+                            <img src="https://ui-avatars.com/api/?name={{ currentUser.username }}&background=0D8ABC&color=fff" alt="{{ currentUser.username }}">
                         </div>
                         <div class="user-info">
-                            <div class="user-name">{{ currentUser.name }}</div>
+                            <div class="user-name">{{ currentUser.username }}</div>
                             <div class="user-role">{{ currentUser.role }}</div>
                         </div>
                         <i class="fa-solid fa-chevron-down"></i>
