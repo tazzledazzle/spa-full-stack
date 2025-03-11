@@ -29,7 +29,7 @@
         <div class="table-body">
             {% for project in projects %}
                 <div class="table-row">
-                    <div class="td-name">{{ project.name }}</div>
+                    <div class="td-name"><a href="/projects/{{project.id }}">{{ project.name }}</a></div>
                     <div class="td-manager">{{ project.projectManagerId }}</div>
                     <div class="td-date">{{ project.endDate }}</div>
                     <div class="td-status">

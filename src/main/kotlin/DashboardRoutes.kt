@@ -4,6 +4,7 @@ import com.northshore.models.ProjectStatus
 import com.northshore.models.TaskStatus
 import com.northshore.services.ProjectService
 import com.northshore.services.TaskService
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.pebble.*
 import io.ktor.server.response.*
@@ -19,7 +20,7 @@ fun Application.registerDashboardRoutes() {
             call.respondRedirect("/dashboard")
         }
         get("/dashboard") {
-            val projects = projectService.getProjects()
+            val projects = projectService.getProjectsFromService()
             val tasks = taskService.getTasks()
             val teamMembers = projectService.getTeamMembers()
             val currentUser = projectService.getCurrentUser()
@@ -50,13 +51,34 @@ fun Application.registerDashboardRoutes() {
         }
 
         get("/projects") {
-            val projects = projectService.getProjects()
+            val projects = projectService.getProjectsFromService()
             val model = mapOf(
                 "pageTitle" to "Projects",
                 "projects" to projects
             )
 
             call.respond(PebbleContent("projects.peb", model))
+        }
+
+        get("/projects/{id}") {
+            val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
+//            if (id == null) {
+//                call.respondText("Invalid project ID", status = HttpStatusCode.BadRequest)
+//                return@get
+//            }
+
+            val project = projectService.getProjectById(id)
+            if (project == null) {
+                call.respondText("Project not found", status = HttpStatusCode.NotFound)
+                return@get
+            }
+
+            val model = mapOf(
+                "pageTitle" to project.name,
+                "project" to project
+            )
+
+            call.respond(PebbleContent("project.peb", model))
         }
 
         get("/tasks") {

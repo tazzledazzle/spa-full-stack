@@ -2,56 +2,5 @@
 
 
 {% block content %}
-    <div class="projects">
-        <div class="projects-header">
-            <h2>Projects</h2>
-            <a href="/projects/new" class="button">New project</a>
-        </div>
-
-        <div class="projects-list-container">
-            {% for project in projects %}
-
-                <div class="project-card">
-                    <div class="project-card-header">
-                        <img src="https://ui-avatars.com/api/?name={{ project.name }}&background=0D8ABC&color=fff" alt="{{ project.name }}">
-                        <h2>{{ project.name }}</h2>
-                    </div>
-                    <div class="project-card-body">
-                        <p>Description: {{ project.description }}</p>
-                        <div class="project-progress">
-                            <div class="progress-bar" style="width: {{ project.progress }}%"></div>
-                            <div class="status-bar" style="width: {{ project.status }}%"></div>
-                    </div>
-                    <div class="project-dates">
-                        <span>Start date: {{ project.startDate }}</span>
-                        <span>End date: {{ project.endDate }}</span>
-                    </div>
-                    {% if projectManager %}
-                        <div class="project-manager">
-                            <span>Project manager:</span>
-                            <img src="https://ui-avatars.com/api/?name={{ project.projectManager.username }}&background=0D8ABC&color=fff" alt="{{ project.projectManager.username }}">
-                            <span>{{ project.projectManager.username }}</span>
-                        </div>
-                    {% endif %}
-                    <div class="project-tasks-container">
-                        <div class="project-tasks">
-                            <span>Tasks:</span>
-                            <ul>
-                                {% for task in project.tasks %}
-                                    <li>Name: {{ task.name }}</li>
-                                    <li>Description: {{ task.description }}</li>
-                                    <li>Estimated Hours: {{ task.estimatedHours }}</li>
-                                    <li>Progress: {{ task.progress }}</li>
-                                    <li>Priority: {{ task.priority }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="project-card-footer">
-                        <a href="/projects/{{ project.id }}" class="button">View project</a>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
+{% include "components/project-overview.peb" %}
 {% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.peb" %}
+{% block content %}
+    <div class="project">
+        <section class="project-overview">
+            <div class="project-header">
+                <h2 class="project-title">{{ project.name }}</h2>
+                <p class="project-description">{{ project.description }}</p>
+            </div>
+
+            <div class="project-stats">
+                <div class="stat-card">
+                    <h3 class="stat-title">Start Date</h3>
+                    <p class="stat-value start-date">{{ project.startDate }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="stat-title">End Date</h3>
+                    <p class="stat-value end-date">{{ project.endDate }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="stat-title">Status</h3>
+                    <p class="stat-value status">{{ project.status }}</p>
+                </div>
+
+
+    </section>
+    </div>
