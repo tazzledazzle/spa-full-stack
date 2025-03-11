@@ -8,8 +8,6 @@ import io.ktor.server.application.*
 import io.ktor.server.pebble.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import org.koin.ktor.ext.inject
 
 fun Application.registerDashboardRoutes() {
@@ -52,7 +50,13 @@ fun Application.registerDashboardRoutes() {
         }
 
         get("/projects") {
-            TODO()
+            val projects = projectService.getProjects()
+            val model = mapOf(
+                "pageTitle" to "Projects",
+                "projects" to projects
+            )
+
+            call.respond(PebbleContent("projects.peb", model))
         }
 
         get("/tasks") {
