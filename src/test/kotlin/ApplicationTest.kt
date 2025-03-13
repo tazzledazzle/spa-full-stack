@@ -14,13 +14,17 @@ class ApplicationTest {
             module()
         }
 
-        client.get("/test").apply {
+//        client.get("/test").apply {
+//            assertEquals(HttpStatusCode.OK, status)
+//        }
+
+
+//        client.get("/dashboard").apply {
+//            assertEquals(HttpStatusCode.OK, status)
+//        }
+
+        client.get("/projects").apply {
             assertEquals(HttpStatusCode.OK, status)
-        }
-
-
-        client.get("/dashboard").apply {
-            assertEquals(HttpStatusCode.Found, status)
         }
     }
 

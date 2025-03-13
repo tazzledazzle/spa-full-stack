@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "2.1.10"
     id("io.ktor.plugin") version "3.1.1"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.1.10"
+    id("io.kotest") version "6.0.0.M2"
 }
 
 group = "com.northshore"
@@ -29,7 +30,10 @@ java {
 val junit_ver = "5.12.0"
 val ktorVersion = "3.1.1"
 val koinVersion = "3.2.0"
-val logbackVersion = "1.2.6"
+val logbackVersion = "1.4.12"
+val kotlinVersion = "2.1.10"
+val kotestVersion = "6.0.0.M2"
+
 
 dependencies {
     // Ktor core dependencies
@@ -57,9 +61,20 @@ dependencies {
     // Logging
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
+    // itext7
+    implementation ("com.itextpdf:kernel:7.2.5")
+    implementation ("com.itextpdf:layout:7.2.5")
+
+    // apache poi
+    implementation("org.apache.poi:poi:5.4.0")         // Core POI library
+    implementation("org.apache.poi:poi-ooxml:5.4.0")   // OOXML support for handling XLSX files
+
     // Testing
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.21")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
+    testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
 }
 
 tasks.withType<KotlinCompile> {

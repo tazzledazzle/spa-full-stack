@@ -1,5 +1,20 @@
 package com.northshore
 
+import com.itextpdf.io.font.PdfEncodings
+import com.itextpdf.io.image.ImageDataFactory
+import com.itextpdf.kernel.font.PdfFontFactory
+import com.itextpdf.kernel.geom.PageSize
+import com.itextpdf.kernel.pdf.PdfDocument
+import com.itextpdf.kernel.pdf.PdfString
+import com.itextpdf.kernel.pdf.PdfVersion
+import com.itextpdf.kernel.pdf.PdfViewerPreferences
+import com.itextpdf.kernel.pdf.PdfWriter
+import com.itextpdf.kernel.pdf.WriterProperties
+import com.itextpdf.layout.Document
+import com.itextpdf.layout.element.Image
+import com.itextpdf.layout.element.List
+import com.itextpdf.layout.element.ListItem
+import com.itextpdf.layout.element.Paragraph
 import com.northshore.models.ProjectStatus
 import com.northshore.models.TaskStatus
 import com.northshore.services.ProjectService
@@ -89,12 +104,51 @@ fun Application.registerDashboardRoutes() {
                 "pageTitle" to "Tasks",
                 "tasks" to tasks
             )
+            call.respond(PebbleContent("tasks.peb", model))
         }
 
         get("/time-log") {
             val entries = projectService.getTimeLogEntries()
         }
 
+        get("/reports") {
+            // extracted data
+            extractDataFromMasterDatabase()
+            // filter by query
+            // generate and render report
+            call.respond(HttpStatusCode.OK)
+        }
 
     }
+}
+
+private fun extractDataFromMasterDatabase() {
+    val pdfDoc = PdfDocument(PdfWriter("results/report.pdf", WriterProperties().addXmpMetadata().setPdfVersion(PdfVersion.PDF_2_0)))
+    val document = Document(pdfDoc, PageSize.A4.rotate())
+
+    pdfDoc.setTagged()
+
+    pdfDoc.catalog.setViewerPreferences(PdfViewerPreferences().setDisplayDocTitle(true))
+    pdfDoc.catalog.setLang(PdfString("en-US"))
+    val info = pdfDoc.documentInfo
+    info.title = "NorthShore Report"
+
+    val paragraph = Paragraph()
+
+    paragraph.add("NorthShore Report")
+
+    val img = Image(ImageDataFactory.create("https://backendstack-filestoragebucket10e371b0-mnfpuelz7fpb.s3.us-west-2.amazonaws.com/users/user-123/465a1993-5234-4856-a03e-434622a276bf-App-Runner.svg"))
+    img.accessibilityProperties.alternateDescription = "App Runner Logo"
+    paragraph.add(img)
+
+
+    document.add(paragraph)
+
+    val font = PdfFontFactory.createFont(PdfEncodings.WINANSI, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED)
+    val list = List().setFont(font)
+    paragraph.setFont(font)
+    list.add(ListItem("1"))
+    list.add(ListItem("2"))
+    list.add(ListItem("3"))
+    document.close()
 }
