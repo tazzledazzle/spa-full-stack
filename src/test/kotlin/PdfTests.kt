@@ -8,6 +8,8 @@ import com.itextpdf.kernel.pdf.WriterProperties
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Paragraph
 import io.kotest.core.spec.style.FunSpec
+import org.apache.poi.ss.usermodel.WorkbookFactory
+import java.io.File
 
 class PdfTests: FunSpec({
     test("hello world pdf") {
@@ -18,6 +20,13 @@ class PdfTests: FunSpec({
     }
 
     test("Extract From Excel") {
-
+        val excel = File("Copy of Master FieldWorkLog.xlsx")
+        println(excel.parent)
+        val workbook = WorkbookFactory.create(excel.inputStream())
+        val sheet = workbook.getSheetAt(0)
+        val row = sheet.getRow(0)
+        for (cell in row) {
+            println(cell.toString())
+        }
     }
 })
