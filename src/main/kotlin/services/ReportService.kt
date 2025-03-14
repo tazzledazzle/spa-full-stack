@@ -1,446 +1,629 @@
-//package com.northshore.services
-//
-//import com.itextpdf.kernel.colors.ColorConstants
-//import com.itextpdf.kernel.pdf.PdfDocument
-//import com.itextpdf.kernel.pdf.PdfWriter
-//import com.itextpdf.layout.Document
-//import com.itextpdf.layout.element.Cell
-//import com.itextpdf.layout.element.Paragraph
-//import com.itextpdf.layout.element.Table
-//import com.itextpdf.layout.properties.TextAlignment
-//import com.itextpdf.layout.properties.UnitValue
-//import com.northshore.models.TimesheetEntry
-//import org.apache.poi.ss.usermodel.WorkbookFactory
-//import org.springframework.web.multipart.MultipartFile
-//import java.io.ByteArrayOutputStream
-//import java.time.LocalDate
-//import java.time.LocalDateTime
-//import java.time.format.DateTimeFormatter
-//import java.util.*
-//
-//class PdfReportService(
-//    private val projectRepository: ProjectRepository,
-//    private val taskRepository: TaskRepository,
-//    private val timesheetEntryRepository: TimesheetEntryRepository
-//) {
-//
-//    /**
-//     * Generate a PDF report from an Excel file
-//     * @param excelFile The Excel file to process
-//     * @param reportTitle Optional report title
-//     * @return ByteArray containing the PDF document
-//     */
-//    fun generatePdfFromExcel(excelFile: MultipartFile, reportTitle: String?): ByteArray {
-//        val workbook = WorkbookFactory.create(excelFile.inputStream)
-//        val sheet = workbook.getSheetAt(0)
-//
-//        // Extract data from Excel
-//        val employeeName = sheet.getRow(2).getCell(1)?.stringCellValue ?: "Not Specified"
-//        val projectName = sheet.getRow(3).getCell(1)?.stringCellValue ?: "Not Specified"
-//
-//        val entries = mutableListOf<TimesheetEntry>()
-//
-//        // Start from row 5 (index 4) and collect timesheet entries
-//        var rowIndex = 4
-//        while (rowIndex < 19) {
-//            val row = sheet.getRow(rowIndex)
-//            if (row != null) {
-//                val dateValue = row.getCell(0)?.stringCellValue?.trim()
-//                val taskValue = row.getCell(2)?.stringCellValue?.trim()
-//                val hoursValue = row.getCell(3)?.numericCellValue
-//                val notesValue = row.getCell(4)?.stringCellValue?.trim()
-//
-//                if (!taskValue.isNullOrEmpty() && hoursValue != null) {
-//                    entries.add(
-//                        TimesheetEntry(
-//                            date = dateValue ?: "",
-//                            task = taskValue,
-//                            hours = hoursValue,
-//                            notes = notesValue ?: ""
-//                        )
-//                    )
-//                }
-//            }
-//            rowIndex++
-//        }
-//
-//        // Calculate total hours
-//        val totalHours = entries.sumOf { it.hours }
-//
-//        // Generate PDF
-//        return generateTimesheetPdf(
-//            employeeName = employeeName,
-//            projectName = projectName,
-//            entries = entries,
-//            totalHours = totalHours,
-//            reportTitle = reportTitle ?: "$projectName Timesheet Report"
-//        )
-//    }
-//
-//    /**
-//     * Generate a PDF report for a project based on database records
-//     * @param projectId The ID of the project
-//     * @return ByteArray containing the PDF document
-//     */
-//    fun generateProjectReport(projectId: Long): ByteArray {
-//        val project = projectRepository.findById(projectId)
-//            .orElseThrow { IllegalArgumentException("Project not found with ID: $projectId") }
-//
-//        val tasks = taskRepository.findByProjectId(projectId)
-//        val timesheetEntries = timesheetEntryRepository.findByTaskProjectId(projectId)
-//
-//        return generateProjectPdf(project, tasks, timesheetEntries)
-//    }
-//
-//    /**
-//     * Generate a PDF report for a specific user's timesheets
-//     * @param employeeName The name of the employee
-//     * @param startDate Optional start date for filtering
-//     * @param endDate Optional end date for filtering
-//     * @return ByteArray containing the PDF document
-//     */
-//    fun generateEmployeeReport(employeeName: String, startDate: LocalDate?, endDate: LocalDate?): ByteArray {
-//        val entries = if (startDate != null && endDate != null) {
-//            timesheetEntryRepository.findByEmployeeNameAndWorkDateBetween(employeeName, startDate, endDate)
-//        } else {
-//            timesheetEntryRepository.findByEmployeeName(employeeName)
-//        }
-//
-//        return generateEmployeePdf(employeeName, entries, startDate, endDate)
-//    }
-//
-//    // Private helper methods
-//
-//    private fun generateTimesheetPdf(
-//        employeeName: String,
-//        projectName: String,
-//        entries: List<TimesheetEntry>,
-//        totalHours: Double,
-//        reportTitle: String
-//    ): ByteArray {
-//        val outputStream = ByteArrayOutputStream()
-//        val pdfWriter = PdfWriter(outputStream)
-//        val pdfDocument = PdfDocument(pdfWriter)
-//        val document = Document(pdfDocument)
-//
-//        try {
-//            // Add title
-//            val title = Paragraph(reportTitle)
-//                .setFontSize(18f)
-//                .setBold()
-//                .setTextAlignment(TextAlignment.CENTER)
-//                .setMarginBottom(20f)
-//            document.add(title)
-//
-//            // Add metadata
-//            document.add(Paragraph("Employee: $employeeName").setMarginBottom(5f))
-//            document.add(Paragraph("Project: $projectName").setMarginBottom(5f))
-//            document.add(Paragraph("Report Date: ${LocalDate.now().format(DateTimeFormatter.ISO_DATE)}").setMarginBottom(15f))
-//
-//            // Create table
-//            val table = Table(UnitValue.createPercentArray(floatArrayOf(15f, 40f, 15f, 30f)))
-//                .useAllAvailableWidth()
-//                .setMarginBottom(15f)
-//
-//            // Add header row
-//            listOf("Date", "Task", "Hours", "Notes").forEach { headerText ->
-//                table.addHeaderCell(
-//                    Cell().add(Paragraph(headerText).setBold())
-//                        .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-//                        .setTextAlignment(TextAlignment.CENTER)
-//                )
-//            }
-//
-//            // Add data rows
-//            entries.forEach { entry ->
-//                table.addCell(Cell().add(Paragraph(entry.date)).setTextAlignment(TextAlignment.CENTER))
-//                table.addCell(Cell().add(Paragraph(entry.task)))
-//                table.addCell(Cell().add(Paragraph(String.format("%.1f", entry.hours))).setTextAlignment(TextAlignment.RIGHT))
-//                table.addCell(Cell().add(Paragraph(entry.notes)))
-//            }
-//
-//            document.add(table)
-//
-//            // Add total hours
-//            document.add(
-//                Paragraph("Total Hours: ${String.format("%.1f", totalHours)}")
-//                    .setBold()
-//                    .setTextAlignment(TextAlignment.RIGHT)
-//            )
-//
-//            // Add footer
-//            val footer = Paragraph("Generated from $projectName timesheet on ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}")
-//                .setFontSize(9f)
-//                .setTextAlignment(TextAlignment.CENTER)
-//                .setMarginTop(30f)
-//            document.add(footer)
-//
-//        } finally {
-//            document.close()
-//        }
-//
-//        return outputStream.toByteArray()
-//    }
-//
-//    private fun generateProjectPdf(
-//        project: ProjectDto,
-//        tasks: List<TaskDto>,
-//        timesheetEntries: List<TimesheetEntryDto>
-//    ): ByteArray {
-//        val outputStream = ByteArrayOutputStream()
-//        val pdfWriter = PdfWriter(outputStream)
-//        val pdfDocument = PdfDocument(pdfWriter)
-//        val document = Document(pdfDocument)
-//
-//        try {
-//            // Add title
-//            val title = Paragraph("${project.name} - Project Report")
-//                .setFontSize(18f)
-//                .setBold()
-//                .setTextAlignment(TextAlignment.CENTER)
-//                .setMarginBottom(20f)
-//            document.add(title)
-//
-//            // Add project metadata
-//            document.add(Paragraph("Project Manager: ${project.projectManagerName ?: "Not Assigned"}").setMarginBottom(5f))
-//            document.add(Paragraph("Start Date: ${project.startDate?.format(DateTimeFormatter.ISO_DATE) ?: "Not Set"}").setMarginBottom(5f))
-//            document.add(Paragraph("End Date: ${project.endDate?.format(DateTimeFormatter.ISO_DATE) ?: "Not Set"}").setMarginBottom(5f))
-//            document.add(Paragraph("Report Generated: ${LocalDate.now().format(DateTimeFormatter.ISO_DATE)}").setMarginBottom(15f))
-//
-//            // Task summary section
-//            document.add(Paragraph("Task Summary").setFontSize(14f).setBold().setMarginBottom(10f))
-//
-//            val taskTable = Table(UnitValue.createPercentArray(floatArrayOf(40f, 20f, 40f)))
-//                .useAllAvailableWidth()
-//                .setMarginBottom(15f)
-//
-//            // Add task header row
-//            listOf("Task Name", "Estimated Hours", "Description").forEach { headerText ->
-//                taskTable.addHeaderCell(
-//                    Cell().add(Paragraph(headerText).setBold())
-//                        .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-//                        .setTextAlignment(TextAlignment.CENTER)
-//                )
-//            }
-//
-//            // Add task data rows
-//            tasks.forEach { task ->
-//                taskTable.addCell(Cell().add(Paragraph(task.name)))
-//                taskTable.addCell(Cell().add(Paragraph(task.estimatedHours?.toString() ?: "N/A")).setTextAlignment(TextAlignment.CENTER))
-//                taskTable.addCell(Cell().add(Paragraph(task.description ?: "")))
-//            }
-//
-//            document.add(taskTable)
-//
-//            // Timesheet summary by employee
-//            document.add(Paragraph("Timesheet Summary by Employee").setFontSize(14f).setBold().setMarginBottom(10f))
-//
-//            // Group entries by employee
-//            val entriesByEmployee = timesheetEntries.groupBy { it.employeeName }
-//
-//            val employeeTable = Table(UnitValue.createPercentArray(floatArrayOf(40f, 20f, 20f, 20f)))
-//                .useAllAvailableWidth()
-//                .setMarginBottom(15f)
-//
-//            // Add employee summary header row
-//            listOf("Employee", "Total Hours", "Entries", "Last Submission").forEach { headerText ->
-//                employeeTable.addHeaderCell(
-//                    Cell().add(Paragraph(headerText).setBold())
-//                        .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-//                        .setTextAlignment(TextAlignment.CENTER)
-//                )
-//            }
-//
-//            // Add employee summary data rows
-//            entriesByEmployee.forEach { (employee, entries) ->
-//                employeeTable.addCell(Cell().add(Paragraph(employee)))
-//
-//                val totalHours = entries.sumOf { it.hoursWorked }
-//                employeeTable.addCell(Cell().add(Paragraph(String.format("%.1f", totalHours))).setTextAlignment(TextAlignment.RIGHT))
-//
-//                employeeTable.addCell(Cell().add(Paragraph(entries.size.toString())).setTextAlignment(TextAlignment.CENTER))
-//
-//                val lastSubmission = entries.maxByOrNull { it.submittedAt ?: LocalDateTime.MIN }?.submittedAt
-//                employeeTable.addCell(Cell().add(
-//                    Paragraph(lastSubmission?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) ?: "N/A")
-//                ).setTextAlignment(TextAlignment.CENTER))
-//            }
-//
-//            document.add(employeeTable)
-//
-//            // Recent entries
-//            document.add(Paragraph("Recent Timesheet Entries").setFontSize(14f).setBold().setMarginBottom(10f))
-//
-//            val recentEntries = timesheetEntries
-//                .sortedByDescending { it.submittedAt }
-//                .take(10)
-//
-//            val recentTable = Table(UnitValue.createPercentArray(floatArrayOf(15f, 20f, 25f, 10f, 30f)))
-//                .useAllAvailableWidth()
-//                .setMarginBottom(15f)
-//
-//            // Add recent entries header row
-//            listOf("Date", "Employee", "Task", "Hours", "Notes").forEach { headerText ->
-//                recentTable.addHeaderCell(
-//                    Cell().add(Paragraph(headerText).setBold())
-//                        .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-//                        .setTextAlignment(TextAlignment.CENTER)
-//                )
-//            }
-//
-//            // Add recent entries data rows
-//            recentEntries.forEach { entry ->
-//                recentTable.addCell(Cell().add(Paragraph(entry.workDate.format(DateTimeFormatter.ISO_DATE))).setTextAlignment(TextAlignment.CENTER))
-//                recentTable.addCell(Cell().add(Paragraph(entry.employeeName)))
-//                recentTable.addCell(Cell().add(Paragraph(entry.taskName)))
-//                recentTable.addCell(Cell().add(Paragraph(String.format("%.1f", entry.hoursWorked))).setTextAlignment(TextAlignment.RIGHT))
-//                recentTable.addCell(Cell().add(Paragraph(entry.notes ?: "")))
-//            }
-//
-//            document.add(recentTable)
-//
-//            // Project totals
-//            val totalProjectHours = timesheetEntries.sumOf { it.hoursWorked }
-//            document.add(Paragraph("Project Summary:").setFontSize(14f).setBold().setMarginBottom(10f))
-//            document.add(Paragraph("Total Hours Logged: ${String.format("%.1f", totalProjectHours)}").setMarginBottom(5f))
-//            document.add(Paragraph("Number of Entries: ${timesheetEntries.size}").setMarginBottom(5f))
-//            document.add(Paragraph("Number of Contributors: ${entriesByEmployee.size}").setMarginBottom(15f))
-//
-//            // Add footer
-//            val footer = Paragraph("Generated from Project Management System on ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}")
-//                .setFontSize(9f)
-//                .setTextAlignment(TextAlignment.CENTER)
-//                .setMarginTop(30f)
-//            document.add(footer)
-//
-//        } finally {
-//            document.close()
-//        }
-//
-//        return outputStream.toByteArray()
-//    }
-//
-//    private fun generateEmployeePdf(
-//        employeeName: String,
-//        entries: List<TimesheetEntry>,
-//        startDate: LocalDate?,
-//        endDate: LocalDate?
-//    ): ByteArray {
-//        val outputStream = ByteArrayOutputStream()
-//        val pdfWriter = PdfWriter(outputStream)
-//        val pdfDocument = PdfDocument(pdfWriter)
-//        val document = Document(pdfDocument)
-//
-//        try {
-//            // Add title
-//            val dateRange = if (startDate != null && endDate != null) {
-//                " (${startDate.format(DateTimeFormatter.ISO_DATE)} to ${endDate.format(DateTimeFormatter.ISO_DATE)})"
-//            } else {
-//                ""
-//            }
-//
-//            val title = Paragraph("Timesheet Report - $employeeName$dateRange")
-//                .setFontSize(18f)
-//                .setBold()
-//                .setTextAlignment(TextAlignment.CENTER)
-//                .setMarginBottom(20f)
-//            document.add(title)
-//
-//            // Add metadata
-//            document.add(Paragraph("Employee: $employeeName").setMarginBottom(5f))
-//            document.add(Paragraph("Report Generated: ${LocalDate.now().format(DateTimeFormatter.ISO_DATE)}").setMarginBottom(15f))
-//
-//            // Group entries by project
-////            val entriesByProject = entries.groupBy { it.projectName ?: "Unknown Project" }
-//            val entriesByProject = entries.groupBy { (k,v) ->  }
-//            // For each project, create a section
-//            entriesByProject.forEach { (projectName, projectEntries) ->
-//                document.add(
-//                    Paragraph("Project: $projectName")
-//                        .setFontSize(14f)
-//                        .setBold()
-//                        .setMarginBottom(10f)
-//                )
-//
-//                // Create table for this project
-//                val table = Table(UnitValue.createPercentArray(floatArrayOf(15f, 30f, 10f, 45f)))
-//                    .useAllAvailableWidth()
-//                    .setMarginBottom(15f)
-//
-//                // Add header row
-//                listOf("Date", "Task", "Hours", "Notes").forEach { headerText ->
-//                    table.addHeaderCell(
-//                        Cell().add(Paragraph(headerText).setBold())
-//                            .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-//                            .setTextAlignment(TextAlignment.CENTER)
-//                    )
-//                }
-//
-//                // Add data rows for this project
-//                projectEntries
-//                    .sortedBy { it.workDate }
-//                    .forEach { entry ->
-//                        table.addCell(Cell().add(Paragraph(entry.workDate.format(DateTimeFormatter.ISO_DATE))).setTextAlignment(TextAlignment.CENTER))
-//                        table.addCell(Cell().add(Paragraph(entry.taskName)))
-//                        table.addCell(Cell().add(Paragraph(String.format("%.1f", entry.hoursWorked))).setTextAlignment(TextAlignment.RIGHT))
-//                        table.addCell(Cell().add(Paragraph(entry.notes ?: "")))
-//                    }
-//
-//                document.add(table)
-//
-//                // Add project total
-//                val projectTotal = projectEntries.sumOf { it.hoursWorked }
-//                document.add(
-//                    Paragraph("Total Hours for $projectName: ${String.format("%.1f", projectTotal)}")
-//                        .setTextAlignment(TextAlignment.RIGHT)
-//                        .setMarginBottom(20f)
-//                )
-//            }
-//
-//            // Add grand total
-//            val totalHours = entries.sumOf { it.hoursWorked }
-//            document.add(
-//                Paragraph("Grand Total Hours: ${String.format("%.1f", totalHours)}")
-//                    .setBold()
-//                    .setTextAlignment(TextAlignment.RIGHT)
-//                    .setMarginBottom(20f)
-//            )
-//
-//            // Summary statistics
-//            document.add(Paragraph("Summary Statistics").setFontSize(14f).setBold().setMarginBottom(10f))
-//
-//            val statsTable = Table(UnitValue.createPercentArray(floatArrayOf(50f, 50f)))
-//                .useAllAvailableWidth()
-//                .setMarginBottom(15f)
-//
-//            statsTable.addCell(Cell().add(Paragraph("Total Hours Logged")).setBold())
-//            statsTable.addCell(Cell().add(Paragraph(String.format("%.1f", totalHours))))
-//
-//            statsTable.addCell(Cell().add(Paragraph("Number of Entries")).setBold())
-//            statsTable.addCell(Cell().add(Paragraph(entries.size.toString())))
-//
-//            statsTable.addCell(Cell().add(Paragraph("Number of Projects")).setBold())
-//            statsTable.addCell(Cell().add(Paragraph(entriesByProject.size.toString())))
-//
-//            statsTable.addCell(Cell().add(Paragraph("Date Range")).setBold())
-//            val minDate = entries.minOfOrNull { it.workDate }?.format(DateTimeFormatter.ISO_DATE) ?: "N/A"
-//            val maxDate = entries.maxOfOrNull { it.workDate }?.format(DateTimeFormatter.ISO_DATE) ?: "N/A"
-//            statsTable.addCell(Cell().add(Paragraph("$minDate to $maxDate")))
-//
-//            document.add(statsTable)
-//
-//            // Add footer
-//            val footer = Paragraph("Generated from Project Management System on ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}")
-//                .setFontSize(9f)
-//                .setTextAlignment(TextAlignment.CENTER)
-//                .setMarginTop(30f)
-//            document.add(footer)
-//
-//        } finally {
-//            document.close()
-//        }
-//
-//        return outputStream.toByteArray()
-//    }
-//
-//}
+package com.northshore.services
+
+import com.itextpdf.io.image.ImageDataFactory
+import com.itextpdf.kernel.colors.DeviceRgb
+import com.itextpdf.kernel.geom.PageSize
+import com.itextpdf.kernel.pdf.PdfDocument
+import com.itextpdf.kernel.pdf.PdfWriter
+import com.itextpdf.layout.Document
+import com.itextpdf.layout.borders.Border
+import com.itextpdf.layout.element.*
+import com.itextpdf.layout.properties.BorderRadius
+import com.itextpdf.layout.properties.HorizontalAlignment
+import com.itextpdf.layout.properties.TextAlignment
+import com.itextpdf.layout.properties.UnitValue
+import com.northshore.models.MasterExcelEntry
+import org.jfree.chart.ChartFactory
+import org.jfree.chart.JFreeChart
+import org.jfree.chart.plot.PiePlot
+import org.jfree.chart.plot.PlotOrientation
+import org.jfree.data.category.DefaultCategoryDataset
+import org.jfree.data.general.DefaultPieDataset
+import java.awt.Color
+import java.io.ByteArrayOutputStream
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+import javax.imageio.ImageIO
+
+class ProjectReportGenerator {
+
+    // Chart colors
+    private val CHART_COLORS = listOf(
+        Color(0, 136, 254),    // #0088FE
+        Color(0, 196, 159),    // #00C49F
+        Color(255, 187, 40),   // #FFBB28
+        Color(255, 128, 66),   // #FF8042
+        Color(136, 132, 216),  // #8884d8
+        Color(130, 202, 157)   // #82ca9d
+    )
+
+    /**
+     * Generate a complete project timesheet report as a PDF
+     *
+     * @param projectData Project metadata
+     * @param timesheetEntries List of timesheet entries
+     * @return ByteArray containing the PDF document
+     */
+    fun generateProjectReport(
+        projectData: ProjectData,
+        timesheetEntries: List<MasterExcelEntry>
+    ): ByteArray {
+        val outputStream = ByteArrayOutputStream()
+        val pdfWriter = PdfWriter(outputStream)
+        val pdfDocument = PdfDocument(pdfWriter)
+        pdfDocument.defaultPageSize = PageSize.A4
+
+        val document = Document(pdfDocument)
+
+        try {
+            // 1. Add report header
+            addReportHeader(document)
+
+            // 2. Add project information
+            addProjectInformation(document, projectData)
+
+            // 3. Add summary statistics
+            addSummaryStatistics(document, projectData, timesheetEntries)
+
+            // 4. Add charts and visualizations
+            addProjectAnalysis(document, timesheetEntries)
+
+            // 5. Add detailed timesheet entries
+            addTimesheetEntries(document, timesheetEntries)
+
+            // 6. Add footer
+            addReportFooter(document)
+
+        } finally {
+            document.close()
+        }
+
+        return outputStream.toByteArray()
+    }
+
+    /**
+     * Add report header to the document
+     */
+    private fun addReportHeader(document: Document) {
+        val title = Paragraph("Project Timesheet Report")
+            .setFontSize(24f)
+            .simulateBold()
+            .setTextAlignment(TextAlignment.CENTER)
+        document.add(title)
+
+        val subtitle = Paragraph("Generated on ${LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))}")
+            .setFontSize(12f)
+            .setTextAlignment(TextAlignment.CENTER)
+            .setFontColor(DeviceRgb(128, 128, 128))
+            .setMarginBottom(20f)
+        document.add(subtitle)
+
+        document.add(LineSeparator(TabStop(1f).tabLeader).setMarginBottom(20f))
+    }
+
+    /**
+     * Add project information section
+     */
+    private fun addProjectInformation(document: Document, projectData: ProjectData) {
+        val sectionTitle = Paragraph("Project Information")
+            .setFontSize(16f)
+            .simulateBold()
+            .setMarginBottom(10f)
+        document.add(sectionTitle)
+
+        val table = Table(UnitValue.createPercentArray(floatArrayOf(50f, 50f)))
+            .useAllAvailableWidth()
+            .setBorder(Border.NO_BORDER)
+
+        // First column
+        table.addCell(createInfoCell("Project Name:", projectData.name))
+        table.addCell(createInfoCell("Project ID:", projectData.id))
+        table.addCell(createInfoCell("Project Manager:", projectData.projectManager))
+
+        // Second column
+        table.addCell(createInfoCell("Start Date:", projectData.startDate))
+        table.addCell(createInfoCell("End Date:", projectData.endDate))
+        table.addCell(createInfoCell("Status:", projectData.status))
+
+        document.add(table)
+        document.add(LineSeparator(TabStop(0f).tabLeader).setMarginTop(15f).setMarginBottom(20f))
+    }
+
+    /**
+     * Helper method to create cells for the project info table
+     */
+    private fun createInfoCell(label: String, value: String): Cell {
+        val cell = Cell()
+            .setBorder(Border.NO_BORDER)
+            .setPadding(5f)
+
+        val paragraph = Paragraph()
+        paragraph.add(Text(label).simulateBold())
+        paragraph.add(Text(" $value"))
+
+        cell.add(paragraph)
+        return cell
+    }
+
+    /**
+     * Add summary statistics section
+     */
+    private fun addSummaryStatistics(
+        document: Document,
+        projectData: ProjectData,
+        timesheetEntries: List<MasterExcelEntry>
+    ) {
+        val sectionTitle = Paragraph("Summary Statistics")
+            .setFontSize(16f)
+            .simulateBold()
+            .setMarginBottom(10f)
+        document.add(sectionTitle)
+
+        val table = Table(UnitValue.createPercentArray(floatArrayOf(50f, 50f)))
+            .useAllAvailableWidth()
+            .setMarginBottom(15f)
+
+        // Calculate team members count
+        val teamMembersCount = timesheetEntries.mapNotNull { it.workerName }.distinct().size
+
+        // Total Hours Box
+        table.addCell(
+            createStatsBox(
+                "Total Hours Logged",
+                projectData.totalHoursLogged.toString(),
+                "of ${projectData.totalBudgetHours} budgeted hours",
+                DeviceRgb(235, 245, 255) // blue-50
+            )
+        )
+
+        // Project Completion Box
+        val completionBox = createStatsBox(
+            "Project Completion",
+            "${projectData.completionPercentage}%",
+            "",
+            DeviceRgb(240, 255, 244) // green-50
+        )
+        // Add progress bar
+        val progressBar = createProgressBar(projectData.completionPercentage)
+        completionBox.add(progressBar)
+        table.addCell(completionBox)
+
+        // Team Members Box
+        table.addCell(
+            createStatsBox(
+                "Total Team Members",
+                teamMembersCount.toString(),
+                "",
+                DeviceRgb(250, 245, 255) // purple-50
+            )
+        )
+
+        // Total Entries Box
+        table.addCell(
+            createStatsBox(
+                "Total Entries",
+                timesheetEntries.size.toString(),
+                "",
+                DeviceRgb(255, 251, 235) // yellow-50
+            )
+        )
+
+        document.add(table)
+        document.add(LineSeparator(TabStop(1f).tabLeader).setMarginBottom(20f))
+    }
+
+    /**
+     * Helper method to create a stats box with title, value and subtitle
+     */
+    private fun createStatsBox(title: String, value: String, subtitle: String, backgroundColor: DeviceRgb): Cell {
+        val cell = Cell()
+            .setPadding(10f)
+            .setBackgroundColor(backgroundColor)
+            .setBorderRadius(BorderRadius(5f))
+            .setMargin(5f)
+
+        val titleText = Paragraph(title)
+            .setFontSize(10f)
+            .setFontColor(DeviceRgb(75, 85, 99)) // gray-600
+
+        val valueText = Paragraph(value)
+            .setFontSize(18f)
+            .simulateBold()
+
+        cell.add(titleText)
+        cell.add(valueText)
+
+        if (subtitle.isNotEmpty()) {
+            val subtitleText = Paragraph(subtitle)
+                .setFontSize(10f)
+                .setFontColor(DeviceRgb(107, 114, 128)) // gray-500
+            cell.add(subtitleText)
+        }
+
+        return cell
+    }
+
+    /**
+     * Create a simple progress bar for the completion percentage
+     */
+    private fun createProgressBar(percentage: Int): Div {
+        val barContainer = Div()
+            .setWidth(UnitValue.createPercentValue(100f))
+            .setHeight(8f)
+            .setBackgroundColor(DeviceRgb(229, 231, 235)) // gray-200
+            .setBorderRadius(BorderRadius(4f))
+            .setMarginTop(5f)
+
+        // Progress indicator
+        val progress = Div()
+            .setWidth(UnitValue.createPercentValue(percentage.toFloat()))
+            .setHeight(8f)
+            .setBackgroundColor(DeviceRgb(22, 163, 74)) // green-600
+            .setBorderRadius(BorderRadius(4f))
+
+        barContainer.add(progress)
+        return barContainer
+    }
+
+    /**
+     * Add project analysis section with charts
+     */
+    private fun addProjectAnalysis(document: Document, timesheetEntries: List<MasterExcelEntry>) {
+        val sectionTitle = Paragraph("Project Analysis")
+            .setFontSize(16f)
+            .simulateBold()
+            .setMarginBottom(10f)
+        document.add(sectionTitle)
+
+        // Group entries by employee and calculate hours
+        val employeeData = timesheetEntries
+            .groupBy { it.userCode ?: "Unknown" }
+            .mapValues { (_, entries) -> entries.sumOf { it.hoursWorked.toDoubleOrNull() ?: 0.0 } }
+
+        // Group entries by task and calculate hours
+        val taskData = timesheetEntries
+            .groupBy { it.taskId ?: "Unknown" }
+            .mapValues { (_, entries) -> entries.sumOf { it.hoursWorked.toDoubleOrNull() ?: 0.0 } }
+
+        // Group entries by month and calculate hours
+        val monthlyData = timesheetEntries
+            .filter { !it.dateOfWork.isNullOrEmpty() }
+            .mapNotNull { entry ->
+                try {
+                    val dateEntered = LocalDate.parse(entry.dateOfWork.toString())
+                    YearMonth.from(dateEntered) to (entry.hoursWorked.toDoubleOrNull() ?: 0.0)
+                } catch (e: Exception) {
+                    null // Skip entries with invalid dates
+                }
+            }
+            .groupBy { (yearMonth, _) -> yearMonth }
+            .mapValues { (_, pairs) -> pairs.sumOf { it.second } }
+            .toSortedMap()
+
+        // Create a table for the charts (2 columns)
+        val chartsTable = Table(UnitValue.createPercentArray(floatArrayOf(50f, 50f)))
+            .useAllAvailableWidth()
+            .setMarginBottom(15f)
+
+        // Employee distribution chart
+        val employeeChartTitle = Paragraph("Hours by Team Member")
+            .setFontSize(14f)
+            .simulateBold()
+            .setTextAlignment(TextAlignment.CENTER)
+
+        val employeePieChart = createPieChart(
+            "Team Member Distribution",
+            employeeData,
+            "Hours"
+        )
+
+        val createChartImage = createChartImage(employeePieChart, 250, 200)
+        val employeeChartCell = Cell()
+            .add(employeeChartTitle)
+            .add(createChartImage)
+            .setPadding(10f)
+            .setBackgroundColor(DeviceRgb(249, 250, 251)) // gray-50
+
+        // Task distribution chart
+        val taskChartTitle = Paragraph("Hours by Task Type")
+            .setFontSize(14f)
+            .simulateBold()
+            .setTextAlignment(TextAlignment.CENTER)
+
+        val taskPieChart = createPieChart(
+            "Task Distribution",
+            taskData,
+            "Hours"
+        )
+
+        val createTaskChart = createChartImage(taskPieChart, 250, 200)
+        val taskChartCell = Cell()
+            .add(taskChartTitle)
+            .add(createTaskChart)
+            .setTextAlignment(TextAlignment.CENTER)
+            .setPadding(10f)
+            .setBackgroundColor(DeviceRgb(249, 250, 251)) // gray-50
+
+        chartsTable.addCell(employeeChartCell)
+        chartsTable.addCell(taskChartCell)
+        document.add(chartsTable)
+
+        // Monthly hours chart (full width)
+        val monthlyChartTitle = Paragraph("Hours by Month")
+            .setFontSize(14f)
+            .simulateBold()
+            .setTextAlignment(TextAlignment.CENTER)
+
+        val formattedMonthlyData = monthlyData.entries.associate { (month, hours) ->
+            month.format(DateTimeFormatter.ofPattern("MMM yyyy")) to hours
+        }
+
+        val monthlyBarChart = createBarChart(
+            "Monthly Hours",
+            formattedMonthlyData,
+            "Month",
+            "Hours"
+        )
+
+        val createMonthlyChart = createChartImage(monthlyBarChart, 500, 200)
+        val monthlyChartDiv = Div()
+            .add(monthlyChartTitle)
+            .add(createMonthlyChart)
+            .setTextAlignment(TextAlignment.CENTER)
+            .setPadding(10f)
+            .setBackgroundColor(DeviceRgb(249, 250, 251)) // gray-50
+
+        document.add(monthlyChartDiv)
+        document.add(LineSeparator(TabStop(1f).tabLeader).setMarginTop(15f).setMarginBottom(20f))
+    }
+
+    /**
+     * Create a pie chart using JFreeChart
+     */
+    private fun createPieChart(
+        title: String,
+        data: Map<String, Double>,
+        valueName: String
+    ): JFreeChart {
+        val dataset = DefaultPieDataset<String>()
+
+        // Add data to dataset
+        data.forEach { (key, value) ->
+            dataset.setValue(key, value)
+        }
+
+        // Create the chart
+        val chart = ChartFactory.createPieChart(
+            title,
+            dataset,
+            true,  // include legend
+            true,  // tooltips
+            false  // URLs
+        )
+
+        // Customize the chart
+        val plot = chart.plot as PiePlot<*>
+
+        // Set colors for sections
+        data.keys.forEachIndexed { index, key ->
+            val color = CHART_COLORS[index % CHART_COLORS.size]
+            plot.setSectionPaint(key, color)
+        }
+
+        // Style chart
+        chart.backgroundPaint = Color(249, 250, 251) // gray-50
+
+        return chart
+    }
+
+    /**
+     * Create a bar chart using JFreeChart
+     */
+    private fun createBarChart(
+        title: String,
+        data: Map<String, Double>,
+        categoryLabel: String,
+        valueLabel: String
+    ): JFreeChart {
+        val dataset = DefaultCategoryDataset()
+
+        // Add data to dataset
+        data.forEach { (key, value) ->
+            dataset.addValue(value, "Hours", key)
+        }
+
+        // Create the chart
+        val chart = ChartFactory.createBarChart(
+            title,
+            categoryLabel,
+            valueLabel,
+            dataset,
+            PlotOrientation.VERTICAL,
+            false,  // include legend
+            true,   // tooltips
+            false   // URLs
+        )
+
+        // Customize the chart
+        val plot = chart.categoryPlot
+        val renderer = plot.renderer
+
+        // Set colors for bars
+        data.keys.forEachIndexed { index, _ ->
+            val color = CHART_COLORS[0] // Use first color for all bars
+            renderer.setSeriesPaint(index, color)
+        }
+
+        // Style chart
+        chart.backgroundPaint = Color(249, 250, 251) // gray-50
+
+        return chart
+    }
+
+    /**
+     * Convert a JFreeChart to an iText Image
+     */
+    private fun createChartImage(chart: JFreeChart, width: Int, height: Int): Image {
+        val bufferedImage = chart.createBufferedImage(width, height)
+        val baos = ByteArrayOutputStream()
+        ImageIO.write(bufferedImage, "png", baos)
+
+        return Image(ImageDataFactory.create(baos.toByteArray()))
+            .setHorizontalAlignment(HorizontalAlignment.CENTER)
+    }
+
+    /**
+     * Add detailed timesheet entries grouped by month
+     */
+    private fun addTimesheetEntries(document: Document, timesheetEntries: List<MasterExcelEntry>) {
+        val sectionTitle = Paragraph("Timesheet Entries")
+            .setFontSize(16f)
+            .simulateBold()
+            .setMarginBottom(10f)
+        document.add(sectionTitle)
+
+        // Group entries by month - with proper error handling
+        val entriesByMonth = timesheetEntries
+            .filter { !it.dateOfWork.isNullOrEmpty() } // Skip entries with empty or null dates
+            .groupBy { entry ->
+                try {
+                    entry.dateOfWork.substring(0, 7) // Group by YYYY-MM
+                } catch (e: Exception) {
+                    // Use a default value for entries with invalid date format
+                    "0000-00"
+                }
+            }
+            .toSortedMap()
+
+        // For each month
+        entriesByMonth.forEach { (month, entries) ->
+            // Format the month heading with error handling
+            val displayMonth = try {
+                val yearMonth = YearMonth.parse(month)
+                yearMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+            } catch (e: Exception) {
+                "Unknown Month"
+            }
+
+            // Calculate monthly total with null safety
+            val monthlyTotal = entries.sumOf { entry ->
+                try {
+                    entry.hoursWorked.toDoubleOrNull() ?: 0.0
+                } catch (e: Exception) {
+                    0.0
+                }
+            }
+
+            // Add month heading with total
+            val monthHeading = Div()
+                .setMarginBottom(5f)
+
+            val monthTitle = Paragraph(displayMonth)
+                .setFontSize(14f)
+                .simulateBold()
+
+            val totalText = Paragraph("${String.format("%.1f", monthlyTotal)} hours")
+                .setFontSize(12f)
+                .setFontColor(DeviceRgb(75, 85, 99)) // gray-600
+                .setTextAlignment(TextAlignment.RIGHT)
+
+            val headingTable = Table(UnitValue.createPercentArray(floatArrayOf(70f, 30f)))
+                .useAllAvailableWidth()
+                .setBorder(Border.NO_BORDER)
+
+            headingTable.addCell(Cell().add(monthTitle).setBorder(Border.NO_BORDER))
+            headingTable.addCell(
+                Cell().add(totalText).setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.RIGHT)
+            )
+
+            monthHeading.add(headingTable)
+            document.add(monthHeading)
+
+            // Create entries table
+            val entriesTable = Table(UnitValue.createPercentArray(floatArrayOf(15f, 20f, 20f, 10f, 35f)))
+                .useAllAvailableWidth()
+                .setMarginBottom(15f)
+
+            // Add header row
+            HEADER_CELLS.forEach { headerText ->
+                entriesTable.addHeaderCell(
+                    Cell()
+                        .add(Paragraph(headerText).simulateBold())
+                        .setBackgroundColor(DeviceRgb(249, 250, 251)) // gray-50
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setPadding(5f)
+                )
+            }
+
+            // Sort entries by date with error handling
+            val sortedEntries = try {
+                entries.sortedBy { it.dateOfWork }
+            } catch (e: Exception) {
+                entries // Fall back to unsorted if sorting fails
+            }
+
+            // Add entry rows with null safety
+            sortedEntries.forEach { entry ->
+                entriesTable.addCell(Cell().add(Paragraph(entry.dateOfWork ?: "")).setPadding(5f))
+                entriesTable.addCell(Cell().add(Paragraph(entry.workerName ?: "")).setPadding(5f))
+                entriesTable.addCell(Cell().add(Paragraph(entry.taskId ?: "")).setPadding(5f))
+
+                // Safely format hours
+                val hours = try {
+                    String.format("%.1f", entry.hoursWorked.toDoubleOrNull() ?: 0.0)
+                } catch (e: Exception) {
+                    "0.0"
+                }
+
+                entriesTable.addCell(
+                    Cell().add(Paragraph(hours))
+                        .setTextAlignment(TextAlignment.RIGHT).setPadding(5f)
+                )
+                entriesTable.addCell(Cell().add(Paragraph(entry.verified ?: "")).setPadding(5f))
+            }
+
+            document.add(entriesTable)
+        }
+    }
+
+    /**
+     * Add report footer
+     */
+    private fun addReportFooter(document: Document) {
+        document.add(LineSeparator(TabStop(1f).tabLeader).setMarginBottom(10f))
+
+        val footer = Paragraph("Generated from Project Management System")
+            .setFontSize(10f)
+            .setTextAlignment(TextAlignment.CENTER)
+            .setFontColor(DeviceRgb(107, 114, 128)) // gray-500
+
+        val copyright = Paragraph("© ${LocalDate.now().year} Your Company")
+            .setFontSize(10f)
+            .setTextAlignment(TextAlignment.CENTER)
+            .setFontColor(DeviceRgb(107, 114, 128)) // gray-500
+
+        document.add(footer)
+        document.add(copyright)
+    }
+
+    companion object {
+        private val HEADER_CELLS = listOf("Date", "Employee", "Task", "Hours", "Notes")
+    }
+
+    /**
+     * Project data class
+     */
+    data class ProjectData(
+        val id: String,
+        val name: String,
+        val projectManager: String,
+        val startDate: String,
+        val endDate: String,
+        val status: String,
+        val completionPercentage: Int,
+        val totalBudgetHours: Double,
+        val totalHoursLogged: Double
+    )
+}

@@ -1,6 +1,6 @@
 package com.northshore.services
 
-import com.northshore.com.northshore.models.TaskPriority
+import com.northshore.models.TaskPriority
 import com.northshore.models.*
 
 class ProjectService {

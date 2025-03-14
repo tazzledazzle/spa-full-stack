@@ -1,4 +1,4 @@
-package com.northshore.com.northshore.models
+package com.northshore.models
 
 import kotlinx.serialization.Serializable
 

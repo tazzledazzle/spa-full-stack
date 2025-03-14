@@ -61,6 +61,11 @@ dependencies {
     // Logging
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
+    // iText PDF 7 for PDF generation
+    implementation("com.itextpdf:itext7-core:9.0.0")
+
+    // JFreeChart for chart generation
+    implementation("org.jfree:jfreechart:1.5.5")
     // itext7
     implementation ("com.itextpdf:kernel:7.2.5")
     implementation ("com.itextpdf:layout:7.2.5")

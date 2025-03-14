@@ -1,6 +1,6 @@
 package com.northshore.models
 
-import com.northshore.com.northshore.models.TaskPriority
+import com.northshore.models.TaskPriority
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
