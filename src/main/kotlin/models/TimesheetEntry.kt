@@ -20,17 +20,12 @@ data class TimesheetEntry(
 )
 
 data class MasterExcelEntry(
-    var workerName: String = "",
     var userCode: String = "",
     var taskId: String = "",
-//    var taskId: Long = 0L,
     var hoursWorked: String = "",
-//    var hoursWorked: Int = 0,
     var overTime: String = "",
-//    var overTime: Int = 0,
     var dateOfWork: String = "",
     var projectNumber: String = "",
-//    var projectNumber: Int = 0,
     var shiftType: String = "",
     var foreman: String = "",
     var verified: String = "",
