@@ -634,32 +634,41 @@ class ProjectReportGenerator {
     }
 
     fun getEntriesFromExcel(file: File): MutableList<MasterExcelEntry> {
-        val excel = file
-        /* File("src/main/resources/Test6446Job.xlsx")*/
-        val workbook = WorkbookFactory.create(excel.inputStream())
         val entryList: MutableList<MasterExcelEntry> = mutableListOf()
         val entries = HashMap<Row, MutableList<String>>()
-        val sheet = workbook.getSheetAt(0)
-        sheet.spliterator().forEachRemaining { row ->
+        WorkbookFactory.create(file.inputStream()).getSheetAt(0).spliterator().forEachRemaining { row ->
             val rowCells: MutableList<String> = mutableListOf()
 
             row.forEach { cell ->
                 rowCells.add(cell.toString())
             }
+
             if (rowCells.size == 12) {
+                val userCode = rowCells[0]
+                val taskName = rowCells[1]
+                val taskId = rowCells[2]
+                val hoursWorked = rowCells[3]
+                val overTime = rowCells[4]
+                val dateOfWork = parseDateFromDateOfWork(rowCells[5])
+                val projectId = rowCells[6]
+                val shiftType = rowCells[7]
+                val foreman = rowCells[8]
+                val jobName = rowCells[9]
+                val estimatedHours = rowCells[10]
+                val isVerifiedForeman = rowCells[11]
                 val entry = MasterExcelEntry(
-                    userCode = rowCells[0],
-                    taskName = rowCells[1],
-                    taskId = rowCells[2],
-                    hoursWorked = rowCells[3],
-                    overTime = rowCells[4],
-                    dateOfWork = parseDateFromDateOfWork(rowCells[5]),
-                    projectId = rowCells[6],
-                    shiftType = rowCells[7],
-                    foreman = rowCells[8],
-                    jobName = rowCells[9],
-                    estimatedHours = rowCells[10],
-                    isVerifiedForeman = rowCells[11]
+                    userCode = userCode,
+                    taskName = taskName,
+                    taskId = taskId,
+                    hoursWorked = hoursWorked,
+                    overTime = overTime,
+                    dateOfWork = dateOfWork,
+                    projectId = projectId,
+                    shiftType = shiftType,
+                    foreman = foreman,
+                    jobName = jobName,
+                    estimatedHours = estimatedHours,
+                    isVerifiedForeman = isVerifiedForeman
                 )
                 entryList.add(entry)
             }

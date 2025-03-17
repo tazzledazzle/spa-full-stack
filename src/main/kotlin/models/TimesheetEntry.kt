@@ -30,6 +30,6 @@ data class MasterExcelEntry(
     var shiftType: String = "",
     var foreman: String = "",
     var jobName: String = "",
-    var isVerifiedForeman: String = "",
     var estimatedHours: String = "",
+    var isVerifiedForeman: String = ""
 )
