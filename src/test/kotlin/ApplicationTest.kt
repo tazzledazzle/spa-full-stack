@@ -2,16 +2,17 @@ package com.northshore
 
 import com.northshore.models.MasterExcelEntry
 import com.northshore.services.ProjectReportGenerator
-import io.kotest.core.spec.style.AnnotationSpec
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format.DateTimeFormat
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
 import org.apache.poi.ss.usermodel.WorkbookFactory
-import java.io.ByteArrayInputStream
 import java.io.File
-import java.io.FileInputStream
-import kotlin.random.Random
+import java.time.format.DateTimeFormatter
+import java.util.*
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -49,7 +50,7 @@ class ApplicationTest {
         val entryList: MutableList<MasterExcelEntry> = mutableListOf()
         row.forEach { r ->
             var cell = r.iterator()
-            val workerName = if (cell.hasNext()) cell.next().toString() else ""
+//            val workerName = if (cell.hasNext()) cell.next().toString() else ""
             val userCode = if (cell.hasNext()) cell.next().toString() else ""
             var taskId = if (cell.hasNext()) cell.next().toString() else ""
             if (taskId != "") {
@@ -86,7 +87,8 @@ class ApplicationTest {
             }
             val hoursWorked = if (cell.hasNext()) cell.next().toString() else ""
             val overTime = if (cell.hasNext()) cell.next().toString() else ""
-            val dateOfWork = if (cell.hasNext()) cell.next().toString() else ""
+            val dateOfWorkStr = if (cell.hasNext()) cell.next().toString() else ""
+            val dateOfWork = parseDateFromDateOfWork(dateOfWorkStr)
             val projectNumber = if (cell.hasNext()) cell.next().toString() else ""
             val shiftType = if (cell.hasNext()) cell.next().toString() else ""
             val verified = if (cell.hasNext()) cell.next().toString() else ""
@@ -118,18 +120,15 @@ class ApplicationTest {
     fun testUpdateAndPopulateFromData() {
         val excel = File("src/main/resources/Test6446Job.xlsx")
         val workbook = WorkbookFactory.create(excel.inputStream())
-        val builder = StringBuilder()
         val entryList: MutableList<MasterExcelEntry> = mutableListOf()
 
         val row = workbook.getSheetAt(0).asIterable()
         //todo: rewrite this so that we're just iterating from the workbook and using a list to apply the data
         row.forEach { r ->
             var cell = r.iterator()
-            val workerName = if (cell.hasNext()) cell.next().toString() else ""
             val userCode = if (cell.hasNext()) cell.next().toString() else ""
             var taskId = if (cell.hasNext()) cell.next().toString() else ""
             if (taskId != "") {
-                println(taskId)
                 taskId = when (taskId) {
                     "1", "1.0" -> {
                         "SIDING"
@@ -156,13 +155,15 @@ class ApplicationTest {
                     }
 
                     else -> {
-                        "UNABLE_TO_PARSE"
+                        r.toString()
                     }
                 }
             }
+
             val hoursWorked = if (cell.hasNext()) cell.next().toString() else ""
             val overTime = if (cell.hasNext()) cell.next().toString() else ""
-            val dateOfWork = if (cell.hasNext()) cell.next().toString() else ""
+            val dateOfWorkStr = if (cell.hasNext()) cell.next().toString() else ""
+            val dateOfWork = parseDateFromDateOfWork(dateOfWorkStr)
             val projectNumber = if (cell.hasNext()) cell.next().toString() else ""
             val shiftType = if (cell.hasNext()) cell.next().toString() else ""
             val verified = if (cell.hasNext()) cell.next().toString() else ""
@@ -181,18 +182,42 @@ class ApplicationTest {
             entryList.add(entry)
         }
 
-        val tasksToHours = mutableListOf(
-            TaskEntryWithEstimate("Penthouse siding and coping", payrollCategoryId[1], 1000.0, 0.0),
-            TaskEntryWithEstimate("Roof screen wall", payrollCategoryId[1], 1000.0, 0.0),
-            TaskEntryWithEstimate("L4 deck panels", payrollCategoryId[1], 1000.0, 0.0),
-            TaskEntryWithEstimate("L10 deck panels", payrollCategoryId[1], 1000.0, 0.0),
-            TaskEntryWithEstimate("Column wraps @ podium", payrollCategoryId[1], 1000.0, 0.0),
-            TaskEntryWithEstimate("Sheet metal roof @ L14 canopy", payrollCategoryId[2], 1000.0, 0.0),
-            TaskEntryWithEstimate("Wall panels @ entry vestibule", payrollCategoryId[1], 1000.0, 0.0),
-            TaskEntryWithEstimate("Penthouse gutters and DS", payrollCategoryId[4], 1000.0, 0.0),
-            TaskEntryWithEstimate("Sheet metal roof @ L14 canopy (roof build up)", payrollCategoryId[3], 1000.0, 0.0)
-        )
+        val tasksToHours = File("src/main/resources/TaskToHours.csv").readLines().map {
+            val split = it.split(",")
+            TaskEntryWithEstimate(
+                taskName = split[0],
+                PayrollCategoryId = split[1],
+                TotalProjectedManhours = Random().nextDouble(1.0, 9.0),
+                TotalSpentHours = Random().nextDouble(1.0, 9.0)
+            )
+        }
 
+        // need to take the entries from the csv and merge them with the taskentrywithestimate
+
+        val entriesByProject = entryList.groupBy { it.projectNumber }
+        val key = entriesByProject.keys.first()
+        val entries = entriesByProject[key]!!
+        val projectData = extractProjectDataFromEntries(key, entries)
+        val report = File("build/reports/Project-$key-${projectData.startDate}-${projectData.endDate}.pdf")
+        report.writeBytes(ProjectReportGenerator().generateProjectReport(projectData, entryList))
+
+    }
+
+    private fun parseDateFromDateOfWork(dateString: String): LocalDate {
+        return try {
+            val dateFormat = LocalDate.Format {
+                dayOfMonth()
+                char('-')
+                monthName(MonthNames.ENGLISH_ABBREVIATED)
+                char('-')
+                year()
+            }
+
+                dateFormat.parse(dateString)
+
+        } catch (e: Exception) {
+            LocalDate(2021, 1, 1)
+        }
     }
 
     data class TaskEntryWithEstimate(
@@ -211,17 +236,18 @@ class ApplicationTest {
         key: String,
         entries: List<MasterExcelEntry>
     ): ProjectReportGenerator.ProjectData {
-        val startDate = entries.minOf { it.dateOfWork }
-        val endDate = entries.maxOf { it.dateOfWork }
+        val startDate = entries.map{ it.dateOfWork }.minBy { it!!.toEpochDays() }!!
+        val endDate = entries.map{ it.dateOfWork }.maxBy { it!!.toEpochDays() }!!
+        val totalBudgetHours = 1000.0
         return ProjectReportGenerator.ProjectData(
             id = key,
             name = key,
             projectManager = entries.first().foreman,
-            startDate = startDate,
-            endDate = endDate,
-            status = "",
+            startDate = startDate.toString(),
+            endDate = endDate.toString(),
+            status = "ARCHIVED",
             completionPercentage = 25, //todo
-            totalBudgetHours = 1000.0, //todo
+            totalBudgetHours = totalBudgetHours,
             totalHoursLogged = entries.sumOf { it.hoursWorked.toDoubleOrNull() ?: 0.0 },
 
             )

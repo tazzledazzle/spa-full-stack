@@ -24,7 +24,6 @@ import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 import javax.imageio.ImageIO
 
 class ProjectReportGenerator {
@@ -166,7 +165,7 @@ class ProjectReportGenerator {
             .setMarginBottom(15f)
 
         // Calculate team members count
-        val teamMembersCount = timesheetEntries.mapNotNull { it.workerName }.distinct().size
+        val teamMembersCount = timesheetEntries.mapNotNull { it.userCode }.distinct().size
 
         // Total Hours Box
         table.addCell(
@@ -289,7 +288,7 @@ class ProjectReportGenerator {
 
         // Group entries by month and calculate hours
         val monthlyData = timesheetEntries
-            .filter { !it.dateOfWork.isNullOrEmpty() }
+            .filter { it.dateOfWork != null }
             .mapNotNull { entry ->
                 try {
                     val dateEntered = LocalDate.parse(entry.dateOfWork.toString())
@@ -486,22 +485,14 @@ class ProjectReportGenerator {
 
         // Group entries by month - with proper error handling
         val entriesByMonth = timesheetEntries
-            .filter { !it.dateOfWork.isNullOrEmpty() } // Skip entries with empty or null dates
-            .groupBy { entry ->
-                try {
-                    entry.dateOfWork.substring(0, 7) // Group by YYYY-MM
-                } catch (e: Exception) {
-                    // Use a default value for entries with invalid date format
-                    "0000-00"
-                }
-            }
-            .toSortedMap()
+            .groupBy { it.dateOfWork }
+
 
         // For each month
-        entriesByMonth.forEach { (month, entries) ->
+        entriesByMonth.forEach { (date, entries) ->
             // Format the month heading with error handling
             val displayMonth = try {
-                val yearMonth = YearMonth.parse(month)
+                val yearMonth = "${date?.month?.name} ${date?.year}"
                 yearMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
             } catch (e: Exception) {
                 "Unknown Month"
@@ -566,8 +557,8 @@ class ProjectReportGenerator {
 
             // Add entry rows with null safety
             sortedEntries.forEach { entry ->
-                entriesTable.addCell(Cell().add(Paragraph(entry.dateOfWork ?: "")).setPadding(5f))
-                entriesTable.addCell(Cell().add(Paragraph(entry.workerName ?: "")).setPadding(5f))
+                entriesTable.addCell(Cell().add(Paragraph(entry.dateOfWork!!.toString() ?: "")).setPadding(5f))
+                entriesTable.addCell(Cell().add(Paragraph(entry.hoursWorked ?: "")).setPadding(5f))
                 entriesTable.addCell(Cell().add(Paragraph(entry.taskId ?: "")).setPadding(5f))
 
                 // Safely format hours
