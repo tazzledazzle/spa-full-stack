@@ -21,13 +21,15 @@ data class TimesheetEntry(
 
 data class MasterExcelEntry(
     var userCode: String = "",
+    var taskName: String = "",
     var taskId: String = "",
     var hoursWorked: String = "",
     var overTime: String = "",
     var dateOfWork: LocalDate? = null,
-    var projectNumber: String = "",
+    var projectId: String = "",
     var shiftType: String = "",
     var foreman: String = "",
-    var verified: String = "",
+    var jobName: String = "",
     var isVerifiedForeman: String = "",
+    var estimatedHours: String = "",
 )

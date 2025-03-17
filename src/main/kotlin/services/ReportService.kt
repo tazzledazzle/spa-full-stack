@@ -13,6 +13,14 @@ import com.itextpdf.layout.properties.HorizontalAlignment
 import com.itextpdf.layout.properties.TextAlignment
 import com.itextpdf.layout.properties.UnitValue
 import com.northshore.models.MasterExcelEntry
+import kotlinx.datetime.Clock.System
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeComponents
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
+import org.apache.poi.ss.usermodel.Row
+import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.plot.PiePlot
@@ -21,8 +29,7 @@ import org.jfree.data.category.DefaultCategoryDataset
 import org.jfree.data.general.DefaultPieDataset
 import java.awt.Color
 import java.io.ByteArrayOutputStream
-import java.time.LocalDate
-import java.time.YearMonth
+import java.io.File
 import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
 
@@ -70,7 +77,7 @@ class ProjectReportGenerator {
             addProjectAnalysis(document, timesheetEntries)
 
             // 5. Add detailed timesheet entries
-            addTimesheetEntries(document, timesheetEntries)
+//            addTimesheetEntries(document, timesheetEntries)
 
             // 6. Add footer
             addReportFooter(document)
@@ -91,8 +98,13 @@ class ProjectReportGenerator {
             .simulateBold()
             .setTextAlignment(TextAlignment.CENTER)
         document.add(title)
-
-        val subtitle = Paragraph("Generated on ${LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))}")
+        val date = System.now().format(DateTimeComponents.Format {
+            monthName(MonthNames.ENGLISH_ABBREVIATED)
+            dayOfMonth()
+            char(',')
+            year()
+        })
+        val subtitle = Paragraph("Generated on $date)}")
             .setFontSize(12f)
             .setTextAlignment(TextAlignment.CENTER)
             .setFontColor(DeviceRgb(128, 128, 128))
@@ -278,12 +290,12 @@ class ProjectReportGenerator {
 
         // Group entries by employee and calculate hours
         val employeeData = timesheetEntries
-            .groupBy { it.userCode ?: "Unknown" }
+            .groupBy { it.userCode }
             .mapValues { (_, entries) -> entries.sumOf { it.hoursWorked.toDoubleOrNull() ?: 0.0 } }
 
         // Group entries by task and calculate hours
         val taskData = timesheetEntries
-            .groupBy { it.taskId ?: "Unknown" }
+            .groupBy { it.taskName }
             .mapValues { (_, entries) -> entries.sumOf { it.hoursWorked.toDoubleOrNull() ?: 0.0 } }
 
         // Group entries by month and calculate hours
@@ -292,15 +304,15 @@ class ProjectReportGenerator {
             .mapNotNull { entry ->
                 try {
                     val dateEntered = LocalDate.parse(entry.dateOfWork.toString())
-                    YearMonth.from(dateEntered) to (entry.hoursWorked.toDoubleOrNull() ?: 0.0)
+                    Pair(dateEntered.year, dateEntered.month.value) to (entry.hoursWorked.toDoubleOrNull() ?: 0.0)
                 } catch (e: Exception) {
                     null // Skip entries with invalid dates
                 }
             }
-            .groupBy { (yearMonth, _) -> yearMonth }
+            .groupBy { "${ it.first }${it.second}" }
             .mapValues { (_, pairs) -> pairs.sumOf { it.second } }
             .toSortedMap()
-
+        println(monthlyData)
         // Create a table for the charts (2 columns)
         val chartsTable = Table(UnitValue.createPercentArray(floatArrayOf(50f, 50f)))
             .useAllAvailableWidth()
@@ -559,7 +571,7 @@ class ProjectReportGenerator {
             sortedEntries.forEach { entry ->
                 entriesTable.addCell(Cell().add(Paragraph(entry.dateOfWork!!.toString() ?: "")).setPadding(5f))
                 entriesTable.addCell(Cell().add(Paragraph(entry.hoursWorked ?: "")).setPadding(5f))
-                entriesTable.addCell(Cell().add(Paragraph(entry.taskId ?: "")).setPadding(5f))
+                entriesTable.addCell(Cell().add(Paragraph(entry.taskName ?: "")).setPadding(5f))
 
                 // Safely format hours
                 val hours = try {
@@ -572,7 +584,7 @@ class ProjectReportGenerator {
                     Cell().add(Paragraph(hours))
                         .setTextAlignment(TextAlignment.RIGHT).setPadding(5f)
                 )
-                entriesTable.addCell(Cell().add(Paragraph(entry.verified ?: "")).setPadding(5f))
+                entriesTable.addCell(Cell().add(Paragraph(entry.projectId ?: "")).setPadding(5f))
             }
 
             document.add(entriesTable)
@@ -590,7 +602,7 @@ class ProjectReportGenerator {
             .setTextAlignment(TextAlignment.CENTER)
             .setFontColor(DeviceRgb(107, 114, 128)) // gray-500
 
-        val copyright = Paragraph("© ${LocalDate.now().year} Your Company")
+        val copyright = Paragraph("© ${LocalDate(2025, 3, 10)} Your Company")
             .setFontSize(10f)
             .setTextAlignment(TextAlignment.CENTER)
             .setFontColor(DeviceRgb(107, 114, 128)) // gray-500
@@ -599,8 +611,87 @@ class ProjectReportGenerator {
         document.add(copyright)
     }
 
+
+    fun extractProjectDataFromEntries(
+        entries: List<MasterExcelEntry>
+    ): ProjectData {
+        val startDate = entries.map{ it.dateOfWork }.minBy { it!!.toEpochDays() }!!
+        val endDate = entries.map{ it.dateOfWork }.maxBy { it!!.toEpochDays() }!!
+        val totalBudgetHours = 1000.0
+        val loggedHours = entries.sumOf { it.hoursWorked.toDoubleOrNull() ?: 0.0 }
+        return ProjectData(
+            id = entries.first().taskName,
+            name = entries.first().projectId,
+            projectManager = entries.first().foreman,
+            startDate = startDate.toString(),
+            endDate = endDate.toString(),
+            status = "ARCHIVED",
+            completionPercentage = (loggedHours/totalBudgetHours).toInt(),
+            totalBudgetHours = totalBudgetHours,
+            totalHoursLogged = loggedHours,
+
+            )
+    }
+
+    fun getEntriesFromExcel(file: File): MutableList<MasterExcelEntry> {
+        val excel = file
+        /* File("src/main/resources/Test6446Job.xlsx")*/
+        val workbook = WorkbookFactory.create(excel.inputStream())
+        val entryList: MutableList<MasterExcelEntry> = mutableListOf()
+        val entries = HashMap<Row, MutableList<String>>()
+        val sheet = workbook.getSheetAt(0)
+        sheet.spliterator().forEachRemaining { row ->
+            val rowCells: MutableList<String> = mutableListOf()
+
+            row.forEach { cell ->
+                rowCells.add(cell.toString())
+            }
+            if (rowCells.size == 12) {
+                val entry = MasterExcelEntry(
+                    userCode = rowCells[0],
+                    taskName = rowCells[1],
+                    taskId = rowCells[2],
+                    hoursWorked = rowCells[3],
+                    overTime = rowCells[4],
+                    dateOfWork = parseDateFromDateOfWork(rowCells[5]),
+                    projectId = rowCells[6],
+                    shiftType = rowCells[7],
+                    foreman = rowCells[8],
+                    jobName = rowCells[9],
+                    estimatedHours = rowCells[10],
+                    isVerifiedForeman = rowCells[11]
+                )
+                entryList.add(entry)
+            }
+            entries.put(row, rowCells)
+        }
+
+
+
+        return entryList
+    }
+
     companion object {
         private val HEADER_CELLS = listOf("Date", "Employee", "Task", "Hours", "Notes")
+
+        fun parseDateFromDateOfWork(dateString: String): kotlinx.datetime.LocalDate {
+            return try {
+                val dateFormat = kotlinx.datetime.LocalDate.Format {
+                    dayOfMonth()
+                    char('-')
+                    monthName(MonthNames.ENGLISH_ABBREVIATED)
+                    char('-')
+                    year()
+                }
+
+                dateFormat.parse(dateString)
+
+            } catch (e: Exception) {
+                LocalDate(2020, 3, 10)
+            }
+        }
+
+
     }
 
     /**
