@@ -63,6 +63,8 @@ class ProjectReportGenerator {
 
         val document = Document(pdfDocument)
 
+        pdfDocument.defaultPageSize = PageSize.A4
+
         try {
             // 1. Add report header
             addReportHeader(document)
@@ -77,7 +79,7 @@ class ProjectReportGenerator {
             addProjectAnalysis(document, timesheetEntries)
 
             // 5. Add detailed timesheet entries
-//            addTimesheetEntries(document, timesheetEntries)
+            addTimesheetEntries(document, timesheetEntries)
 
             // 6. Add footer
             addReportFooter(document)
@@ -99,10 +101,11 @@ class ProjectReportGenerator {
             .setTextAlignment(TextAlignment.CENTER)
         document.add(title)
         val date = System.now().format(DateTimeComponents.Format {
-            monthName(MonthNames.ENGLISH_ABBREVIATED)
-            dayOfMonth()
-            char(',')
             year()
+            char('-')
+            monthName(MonthNames.ENGLISH_ABBREVIATED)
+            char('-')
+            dayOfMonth()
         })
         val subtitle = Paragraph("Generated on $date)}")
             .setFontSize(12f)
@@ -129,8 +132,8 @@ class ProjectReportGenerator {
             .setBorder(Border.NO_BORDER)
 
         // First column
-        table.addCell(createInfoCell("Project Name:", projectData.name))
-        table.addCell(createInfoCell("Project ID:", projectData.id))
+        table.addCell(createInfoCell("Project Name:", projectData.name))  //todo:
+        table.addCell(createInfoCell("Project ID:", projectData.id)) //todo: create
         table.addCell(createInfoCell("Project Manager:", projectData.projectManager))
 
         // Second column
@@ -197,7 +200,7 @@ class ProjectReportGenerator {
             DeviceRgb(240, 255, 244) // green-50
         )
         // Add progress bar
-        val progressBar = createProgressBar(projectData.completionPercentage)
+        val progressBar = createProgressBar(projectData.completionPercentage.toInt())
         completionBox.add(progressBar)
         table.addCell(completionBox)
 
@@ -304,7 +307,7 @@ class ProjectReportGenerator {
             .mapNotNull { entry ->
                 try {
                     val dateEntered = LocalDate.parse(entry.dateOfWork.toString())
-                    Pair(dateEntered.year, dateEntered.month.value) to (entry.hoursWorked.toDoubleOrNull() ?: 0.0)
+                    "${dateEntered.year}, ${dateEntered.month.value}" to (entry.hoursWorked.toDoubleOrNull() ?: 0.0)
                 } catch (e: Exception) {
                     null // Skip entries with invalid dates
                 }
@@ -620,13 +623,13 @@ class ProjectReportGenerator {
         val totalBudgetHours = 1000.0
         val loggedHours = entries.sumOf { it.hoursWorked.toDoubleOrNull() ?: 0.0 }
         return ProjectData(
-            id = entries.first().taskName,
-            name = entries.first().projectId,
-            projectManager = entries.first().foreman,
+            id = entries.last().projectId,
+            name = entries.last().jobName,
+            projectManager = entries.last().isVerifiedForeman,
             startDate = startDate.toString(),
             endDate = endDate.toString(),
             status = "ARCHIVED",
-            completionPercentage = (loggedHours/totalBudgetHours).toInt(),
+            completionPercentage = (loggedHours/totalBudgetHours) * 100,
             totalBudgetHours = totalBudgetHours,
             totalHoursLogged = loggedHours,
 
@@ -713,7 +716,7 @@ class ProjectReportGenerator {
         val startDate: String,
         val endDate: String,
         val status: String,
-        val completionPercentage: Int,
+        val completionPercentage: Double,
         val totalBudgetHours: Double,
         val totalHoursLogged: Double
     )
