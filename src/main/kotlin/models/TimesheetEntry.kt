@@ -26,9 +26,9 @@ data class MasterExcelEntry(
     var hoursWorked: String = "",
     var overTime: String = "",
     var dateOfWork: LocalDate? = null,
-    var projectId: String = "",
+    var projectJobId: String = "",
     var shiftType: String = "",
-    var foreman: String = "",
+    var foremanName: String = "",
     var jobName: String = "",
     var estimatedHours: String = "",
     var isVerifiedForeman: String = ""
