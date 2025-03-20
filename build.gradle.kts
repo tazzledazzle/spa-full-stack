@@ -53,6 +53,13 @@ dependencies {
     implementation("io.pebbletemplates:pebble:3.2.1")
     implementation("io.ktor:ktor-server-pebble:$ktorVersion")
 
+    // jcharts
+    implementation(files("src/jCharts-0.7.5/jCharts-0.7.5.jar"))
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-jvm:4.9.2")
+    // Lets-Plot Multiplatform (Batik rendering)
+    implementation("org.jetbrains.lets-plot:lets-plot-batik:4.5.2")
+    implementation("org.jetbrains.lets-plot:lets-plot-image-export:4.6.1")
+    implementation("org.jetbrains.lets-plot:lets-plot-image-export:4.0.0")
     // Dependency Injection
     implementation("io.insert-koin:koin-core:$koinVersion")
     implementation("io.insert-koin:koin-ktor:$koinVersion")

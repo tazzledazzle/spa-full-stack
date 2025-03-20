@@ -21,17 +21,33 @@ import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.WorkbookFactory
+import org.jetbrains.letsPlot.batik.plot.component.DefaultPlotPanelBatik
+import org.jetbrains.letsPlot.coord.coordFlip
+import org.jetbrains.letsPlot.core.plot.builder.presentation.Defaults
+import org.jetbrains.letsPlot.core.util.MonolithicCommon
+import org.jetbrains.letsPlot.geom.geomBar
+import org.jetbrains.letsPlot.intern.Plot
+import org.jetbrains.letsPlot.intern.StatKind
+import org.jetbrains.letsPlot.intern.layer.StatOptions
+import org.jetbrains.letsPlot.intern.toSpec
+import org.jetbrains.letsPlot.label.ggtitle
+import org.jetbrains.letsPlot.letsPlot
+import org.jetbrains.letsPlot.scale.scaleFillBrewer
+import org.jetbrains.letsPlot.themes.elementBlank
+import org.jetbrains.letsPlot.themes.theme
+import org.jetbrains.letsPlot.tooltips.layerTooltips
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.plot.PiePlot
-import org.jfree.chart.plot.PlotOrientation
 import org.jfree.data.category.DefaultCategoryDataset
 import org.jfree.data.general.DefaultPieDataset
 import java.awt.Color
+import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
+import javax.swing.JPanel
 
 class ProjectReportGenerator {
 
@@ -57,8 +73,7 @@ class ProjectReportGenerator {
         timesheetEntries: List<MasterExcelEntry>
     ): ByteArray {
         val outputStream = ByteArrayOutputStream()
-        val pdfWriter = PdfWriter(outputStream)
-        val pdfDocument = PdfDocument(pdfWriter)
+        val pdfDocument = PdfDocument(PdfWriter(outputStream))
         pdfDocument.defaultPageSize = PageSize.A4
 
         val document = Document(pdfDocument)
@@ -73,7 +88,7 @@ class ProjectReportGenerator {
             addProjectInformation(document, projectData)
 
             // 3. Add summary statistics
-            addSummaryStatistics(document, projectData, timesheetEntries)
+//            addSummaryStatistics(document, projectData, timesheetEntries)
 
             // 4. Add charts and visualizations
             addProjectAnalysis(document, timesheetEntries)
@@ -180,7 +195,8 @@ class ProjectReportGenerator {
             .setMarginBottom(15f)
 
         // Calculate team members count
-        val teamMembersCount = timesheetEntries.mapNotNull { it.userCode }.distinct().size
+        val teamMembersCount = timesheetEntries
+            .map { it.userCode }.distinct().size
 
         // Total Hours Box
         table.addCell(
@@ -284,113 +300,101 @@ class ProjectReportGenerator {
     /**
      * Add project analysis section with charts
      */
-    private fun addProjectAnalysis(document: Document, timesheetEntries: List<MasterExcelEntry>) {
-        val sectionTitle = Paragraph("Project Analysis")
-            .setFontSize(16f)
-            .simulateBold()
-            .setMarginBottom(10f)
-        document.add(sectionTitle)
-
-        // Group entries by employee and calculate hours
-        val employeeData = timesheetEntries
-            .groupBy { it.userCode }
-            .mapValues { (_, entries) -> entries.sumOf { it.hoursWorked.toDoubleOrNull() ?: 0.0 } }
-
-        // Group entries by task and calculate hours
-        val taskData = timesheetEntries
-            .groupBy { it.taskName }
-            .mapValues { (_, entries) -> entries.sumOf { it.hoursWorked.toDoubleOrNull() ?: 0.0 } }
-
-        // Group entries by month and calculate hours
-        val monthlyData = timesheetEntries
-            .filter { it.dateOfWork != null }
-            .mapNotNull { entry ->
-                try {
-                    val dateEntered = LocalDate.parse(entry.dateOfWork.toString())
-                    "${dateEntered.year}, ${dateEntered.month.value}" to (entry.hoursWorked.toDoubleOrNull() ?: 0.0)
-                } catch (e: Exception) {
-                    null // Skip entries with invalid dates
-                }
-            }
-            .groupBy { "${ it.first }${it.second}" }
-            .mapValues { (_, pairs) -> pairs.sumOf { it.second } }
-            .toSortedMap()
-        println(monthlyData)
-        // Create a table for the charts (2 columns)
-        val chartsTable = Table(UnitValue.createPercentArray(floatArrayOf(50f, 50f)))
-            .useAllAvailableWidth()
-            .setMarginBottom(15f)
-
-        // Employee distribution chart
-        val employeeChartTitle = Paragraph("Hours by Team Member")
-            .setFontSize(14f)
-            .simulateBold()
-            .setTextAlignment(TextAlignment.CENTER)
-
-        val employeePieChart = createPieChart(
-            "Team Member Distribution",
-            employeeData,
-            "Hours"
-        )
-
-        val createChartImage = createChartImage(employeePieChart, 250, 200)
-        val employeeChartCell = Cell()
-            .add(employeeChartTitle)
-            .add(createChartImage)
-            .setPadding(10f)
-            .setBackgroundColor(DeviceRgb(249, 250, 251)) // gray-50
-
-        // Task distribution chart
-        val taskChartTitle = Paragraph("Hours by Task Type")
-            .setFontSize(14f)
-            .simulateBold()
-            .setTextAlignment(TextAlignment.CENTER)
-
-        val taskPieChart = createPieChart(
-            "Task Distribution",
-            taskData,
-            "Hours"
-        )
-
-        val createTaskChart = createChartImage(taskPieChart, 250, 200)
-        val taskChartCell = Cell()
-            .add(taskChartTitle)
-            .add(createTaskChart)
-            .setTextAlignment(TextAlignment.CENTER)
-            .setPadding(10f)
-            .setBackgroundColor(DeviceRgb(249, 250, 251)) // gray-50
-
-        chartsTable.addCell(employeeChartCell)
-        chartsTable.addCell(taskChartCell)
-        document.add(chartsTable)
-
-        // Monthly hours chart (full width)
-        val monthlyChartTitle = Paragraph("Hours by Month")
-            .setFontSize(14f)
-            .simulateBold()
-            .setTextAlignment(TextAlignment.CENTER)
-
-        val formattedMonthlyData = monthlyData.entries.associate { (month, hours) ->
-            month.format(DateTimeFormatter.ofPattern("MMM yyyy")) to hours
-        }
-
-        val monthlyBarChart = createBarChart(
-            "Monthly Hours",
-            formattedMonthlyData,
-            "Month",
-            "Hours"
-        )
-
-        val createMonthlyChart = createChartImage(monthlyBarChart, 500, 200)
-        val monthlyChartDiv = Div()
-            .add(monthlyChartTitle)
-            .add(createMonthlyChart)
-            .setTextAlignment(TextAlignment.CENTER)
-            .setPadding(10f)
-            .setBackgroundColor(DeviceRgb(249, 250, 251)) // gray-50
-
-        document.add(monthlyChartDiv)
-        document.add(LineSeparator(TabStop(1f).tabLeader).setMarginTop(15f).setMarginBottom(20f))
+    fun addProjectAnalysis(document: Document, timesheetEntries: List<MasterExcelEntry>) {
+//        val sectionTitle = Paragraph("Project Analysis")
+//            .setFontSize(16f)
+//            .simulateBold()
+//            .setMarginBottom(10f)
+//        document.add(sectionTitle)
+//
+//        // Group entries by task and calculate hours
+//        val taskData = timesheetEntries
+//            .groupBy { it.taskName }
+//            .mapValues { (_, entries) -> entries.sumOf { it.hoursWorked.toDoubleOrNull() ?: 0.0 } }
+//        val totalTaskHours = taskData.values.sum()
+//
+//        // Group entries by month and calculate hours
+//        val monthlyData = timesheetEntries
+//            .filter { it.dateOfWork != null }
+//            .mapNotNull { entry ->
+//                try {
+//                    val dateEntered = LocalDate.parse(entry.dateOfWork.toString())
+//                    "${dateEntered.year}, ${dateEntered.month.value}" to (entry.hoursWorked.toDoubleOrNull() ?: 0.0)
+//                } catch (e: Exception) {
+//                    null // Skip entries with invalid dates
+//                }
+//            }
+//            .groupBy { "${it.first}${it.second}" }
+//            .mapValues { (_, pairs) -> pairs.sumOf { it.second } }
+//            .toSortedMap()
+//        // Create a table for the charts (2 columns)
+//        val chartsTable = Table(UnitValue.createPercentArray(floatArrayOf(50f, 50f)))
+//            .useAllAvailableWidth()
+//            .setMarginBottom(15f)
+//
+//        // Task distribution chart
+//        val taskChartTitle = Paragraph("Hours by Task Type")
+//            .setFontSize(14f)
+//            .simulateBold()
+//            .setTextAlignment(TextAlignment.CENTER)
+//
+//        val taskPieChart = letsPlot(taskData) + ggsize(500, 200)
+//        taskPieChart + geomPie(
+//            stat = StatOptions(StatKind.IDENTITY),
+//            size = 20,
+//            stroke = 1,
+//            color = "white",
+//            hole = 0.5
+//        ) { x = "task"; y = "value" } + theme(line=elementBlank(), axis=elementBlank()) + scaleFillBrewer(palette = "Set1")
+//
+//        val taskChart = DefaultPlotPanelBatik(processedSpec = MonolithicCommon.processRawSpecs(taskPieChart.toSpec(), false),
+//            preserveAspectRatio = true,
+//            preferredSizeFromPlot = false,
+//            repaintDelay = 10
+//        ) { messages ->
+//            for (message in messages) {
+//                println("[Example App] $message")
+//            }
+//        }
+//        val createTaskChart = createChartImage(taskChart, 500, 200)
+//        val taskChartCell = Cell()
+////            .add(taskChartTitle)
+//            .add(createTaskChart)
+//            .setTextAlignment(TextAlignment.CENTER)
+//            .setPadding(20f)
+//            .setBackgroundColor(DeviceRgb(249, 250, 251)) // gray-50
+//
+////        chartsTable.addCell(employeeChartCell)
+//        chartsTable.addCell(taskChartCell)
+//        document.add(chartsTable)
+//
+//        // Monthly hours chart (full width)
+//        val monthlyChartTitle = Paragraph("Hours by Month")
+//            .setFontSize(14f)
+//            .simulateBold()
+//            .setTextAlignment(TextAlignment.CENTER)
+//
+//        val formattedMonthlyData = monthlyData.entries.associate { (month, hours) ->
+//            month.format(DateTimeFormatter.ofPattern("MMM yyyy")) to hours
+//        }
+//
+//        val monthlyBarChart = createBarChart(
+//            "Monthly Hours",
+//            formattedMonthlyData,
+//            "Month",
+//            "Hours"
+//        )
+//
+//        val createMonthlyChart = createChartImage(monthlyBarChart, 500, 200)
+//        val monthlyChartDiv = Div()
+//            .add(monthlyChartTitle)
+//            .add(createMonthlyChart)
+//            .setTextAlignment(TextAlignment.CENTER)
+//            .setPadding(10f)
+//            .setBackgroundColor(DeviceRgb(249, 250, 251)) // gray-50
+//
+//        document.add(monthlyChartDiv)
+//        document.add(LineSeparator(TabStop(1f).tabLeader).setMarginTop(15f).setMarginBottom(20f))
     }
 
     /**
@@ -435,51 +439,41 @@ class ProjectReportGenerator {
     /**
      * Create a bar chart using JFreeChart
      */
-    private fun createBarChart(
-        title: String,
-        data: Map<String, Double>,
-        categoryLabel: String,
-        valueLabel: String
-    ): JFreeChart {
-        val dataset = DefaultCategoryDataset()
-
-        // Add data to dataset
-        data.forEach { (key, value) ->
-            dataset.addValue(value, "Hours", key)
-        }
-
-        // Create the chart
-        val chart = ChartFactory.createBarChart(
-            title,
-            categoryLabel,
-            valueLabel,
-            dataset,
-            PlotOrientation.VERTICAL,
-            false,  // include legend
-            true,   // tooltips
-            false   // URLs
-        )
-
-        // Customize the chart
-        val plot = chart.categoryPlot
-        val renderer = plot.renderer
-
-        // Set colors for bars
-        data.keys.forEachIndexed { index, _ ->
-            val color = CHART_COLORS[0] // Use first color for all bars
-            renderer.setSeriesPaint(index, color)
-        }
-
-        // Style chart
-        chart.backgroundPaint = Color(249, 250, 251) // gray-50
-
-        return chart
+    fun createBarChart(data: Map<String, List<*>>): Plot {
+        return letsPlot(data) +
+                geomBar(
+                    stat = StatOptions(StatKind.IDENTITY),
+                    alpha = 0.8,
+                    fill = "green", // Map the fill color to the category
+                    tooltips = layerTooltips()
+                        .line("category")
+                        .line("Value: @value")
+                ) {
+                    x = "category"
+                    y = "value"
+                } +
+                ggtitle("Category Values") +
+                theme(
+                    line = elementBlank(),
+//                    axis = elementBlank(),
+//                    legend = elementBlank(),
+//                    plotBackground = elementBlank(),
+//                    panelBackground = elementBlank(),
+//                    panelBorder = elementBlank(),
+//                    panelGrid = elementBlank(),
+                    plotMargin = UnitValue.createPercentValue(0f)
+                ) +
+//                    axisTitleX = "Category",
+//                    axisTitleY = "Value"
+//                ) +
+                scaleFillBrewer(palette = "Set2") +
+                coordFlip() // Optional: flip coordinates for horizontal bars
     }
 
     /**
      * Convert a JFreeChart to an iText Image
      */
-    private fun createChartImage(chart: JFreeChart, width: Int, height: Int): Image {
+    private fun createChartImage(chart: JPanel, width: Int, height: Int): Image {
         val bufferedImage = chart.createBufferedImage(width, height)
         val baos = ByteArrayOutputStream()
         ImageIO.write(bufferedImage, "png", baos)
@@ -504,7 +498,7 @@ class ProjectReportGenerator {
 
 
         // For each month
-        entriesByMonth.forEach { (date, entries) ->
+        entriesByMonth.toSortedMap(compareByDescending { it?.toEpochDays() }).forEach { (date, entries) ->
             // Format the month heading with error handling
             val displayMonth = try {
                 val yearMonth = "${date?.month?.name} ${date?.year}"
@@ -521,6 +515,7 @@ class ProjectReportGenerator {
                     0.0
                 }
             }
+            entriesByMonth
 
             // Add month heading with total
             val monthHeading = Div()
@@ -547,50 +542,50 @@ class ProjectReportGenerator {
             monthHeading.add(headingTable)
             document.add(monthHeading)
 
-            // Create entries table
-            val entriesTable = Table(UnitValue.createPercentArray(floatArrayOf(15f, 20f, 20f, 10f, 35f)))
-                .useAllAvailableWidth()
-                .setMarginBottom(15f)
-
-            // Add header row
-            HEADER_CELLS.forEach { headerText ->
-                entriesTable.addHeaderCell(
-                    Cell()
-                        .add(Paragraph(headerText).simulateBold())
-                        .setBackgroundColor(DeviceRgb(249, 250, 251)) // gray-50
-                        .setTextAlignment(TextAlignment.CENTER)
-                        .setPadding(5f)
-                )
-            }
-
-            // Sort entries by date with error handling
-            val sortedEntries = try {
-                entries.sortedBy { it.dateOfWork }
-            } catch (e: Exception) {
-                entries // Fall back to unsorted if sorting fails
-            }
-
-            // Add entry rows with null safety
-            sortedEntries.forEach { entry ->
-                entriesTable.addCell(Cell().add(Paragraph(entry.dateOfWork!!.toString() ?: "")).setPadding(5f))
-                entriesTable.addCell(Cell().add(Paragraph(entry.hoursWorked ?: "")).setPadding(5f))
-                entriesTable.addCell(Cell().add(Paragraph(entry.taskName ?: "")).setPadding(5f))
-
-                // Safely format hours
-                val hours = try {
-                    String.format("%.1f", entry.hoursWorked.toDoubleOrNull() ?: 0.0)
-                } catch (e: Exception) {
-                    "0.0"
-                }
-
-                entriesTable.addCell(
-                    Cell().add(Paragraph(hours))
-                        .setTextAlignment(TextAlignment.RIGHT).setPadding(5f)
-                )
-                entriesTable.addCell(Cell().add(Paragraph(entry.projectId ?: "")).setPadding(5f))
-            }
-
-            document.add(entriesTable)
+//            // Create entries table
+//            val entriesTable = Table(UnitValue.createPercentArray(floatArrayOf(15f, 20f, 20f, 10f, 35f)))
+//                .useAllAvailableWidth()
+//                .setMarginBottom(15f)
+//
+//            // Add header row
+//            HEADER_CELLS.forEach { headerText ->
+//                entriesTable.addHeaderCell(
+//                    Cell()
+//                        .add(Paragraph(headerText).simulateBold())
+//                        .setBackgroundColor(DeviceRgb(249, 250, 251)) // gray-50
+//                        .setTextAlignment(TextAlignment.CENTER)
+//                        .setPadding(5f)
+//                )
+//            }
+//
+//            // Sort entries by date with error handling
+//            val sortedEntries = try {
+//                entries.sortedBy { it.dateOfWork }
+//            } catch (e: Exception) {
+//                entries // Fall back to unsorted if sorting fails
+//            }
+//
+//            // Add entry rows with null safety
+//            sortedEntries.forEach { entry ->
+//                entriesTable.addCell(Cell().add(Paragraph(entry.dateOfWork!!.toString() ?: "")).setPadding(5f))
+//                entriesTable.addCell(Cell().add(Paragraph(entry.hoursWorked ?: "")).setPadding(5f))
+//                entriesTable.addCell(Cell().add(Paragraph(entry.taskName ?: "")).setPadding(5f))
+//
+//                // Safely format hours
+//                val hours = try {
+//                    String.format("%.1f", entry.hoursWorked.toDoubleOrNull() ?: 0.0)
+//                } catch (e: Exception) {
+//                    "0.0"
+//                }
+//
+//                entriesTable.addCell(
+//                    Cell().add(Paragraph(hours))
+//                        .setTextAlignment(TextAlignment.RIGHT).setPadding(5f)
+//                )
+//                entriesTable.addCell(Cell().add(Paragraph(entry.projectJobId)).setPadding(5f))
+//            }
+//
+//            document.add(entriesTable)
         }
     }
 
@@ -618,18 +613,30 @@ class ProjectReportGenerator {
     fun extractProjectDataFromEntries(
         entries: List<MasterExcelEntry>
     ): ProjectData {
-        val startDate = entries.map{ it.dateOfWork }.minBy { it!!.toEpochDays() }!!
-        val endDate = entries.map{ it.dateOfWork }.maxBy { it!!.toEpochDays() }!!
+        val startDate = entries.map { it.dateOfWork }.minBy { it!!.toEpochDays() }!!
+        val endDate = entries.map { it.dateOfWork }.maxBy { it!!.toEpochDays() }!!
         val totalBudgetHours = 1000.0
         val loggedHours = entries.sumOf { it.hoursWorked.toDoubleOrNull() ?: 0.0 }
         return ProjectData(
-            id = entries.last().projectId,
+            id = entries.last().projectJobId,
             name = entries.last().jobName,
-            projectManager = entries.last().isVerifiedForeman,
-            startDate = startDate.toString(),
-            endDate = endDate.toString(),
+            projectManager = entries.last().foremanName,
+            startDate = startDate.format(LocalDate.Format {
+                monthName(MonthNames.ENGLISH_FULL)
+                char(' ')
+                dayOfMonth()
+                char(',')
+                year()
+            }),
+            endDate = endDate.format(LocalDate.Format {
+                monthName(MonthNames.ENGLISH_FULL)
+                char(' ')
+                dayOfMonth()
+                char(',')
+                year()
+            }),
             status = "ARCHIVED",
-            completionPercentage = (loggedHours/totalBudgetHours) * 100,
+            completionPercentage = (loggedHours / totalBudgetHours) * 100,
             totalBudgetHours = totalBudgetHours,
             totalHoursLogged = loggedHours,
 
@@ -647,18 +654,21 @@ class ProjectReportGenerator {
             }
 
             if (rowCells.size == 12) {
+                if (rowCells[0] == "UserCode") {
+                    return@forEachRemaining
+                }
                 val userCode = rowCells[0]
                 val taskName = rowCells[1]
-                val taskId = rowCells[2]
-                val hoursWorked = rowCells[3]
-                val overTime = rowCells[4]
-                val dateOfWork = parseDateFromDateOfWork(rowCells[5])
-                val projectId = rowCells[6]
-                val shiftType = rowCells[7]
-                val foreman = rowCells[8]
+                val hoursWorked = rowCells[2]
+                val overTime = rowCells[3]
+                val dateOfWork = parseDateFromDateOfWork(rowCells[4])
+                val projectJobId = rowCells[5]
+                val shiftType = rowCells[6]
+                val foremanName = rowCells[7]
+                val isVerifiedForeman = rowCells[8]
                 val jobName = rowCells[9]
                 val estimatedHours = rowCells[10]
-                val isVerifiedForeman = rowCells[11]
+                val taskId = rowCells[11]
                 val entry = MasterExcelEntry(
                     userCode = userCode,
                     taskName = taskName,
@@ -666,9 +676,9 @@ class ProjectReportGenerator {
                     hoursWorked = hoursWorked,
                     overTime = overTime,
                     dateOfWork = dateOfWork,
-                    projectId = projectId,
+                    projectJobId = projectJobId,
                     shiftType = shiftType,
-                    foreman = foreman,
+                    foremanName = foremanName,
                     jobName = jobName,
                     estimatedHours = estimatedHours,
                     isVerifiedForeman = isVerifiedForeman
@@ -686,9 +696,9 @@ class ProjectReportGenerator {
     companion object {
         private val HEADER_CELLS = listOf("Date", "Employee", "Task", "Hours", "Notes")
 
-        fun parseDateFromDateOfWork(dateString: String): kotlinx.datetime.LocalDate {
+        fun parseDateFromDateOfWork(dateString: String): LocalDate {
             return try {
-                val dateFormat = kotlinx.datetime.LocalDate.Format {
+                val dateFormat = LocalDate.Format {
                     dayOfMonth()
                     char('-')
                     monthName(MonthNames.ENGLISH_ABBREVIATED)
@@ -720,4 +730,14 @@ class ProjectReportGenerator {
         val totalBudgetHours: Double,
         val totalHoursLogged: Double
     )
+}
+
+private fun JPanel.createBufferedImage(width: Int, height: kotlin.Int): BufferedImage {
+    this.size = this.preferredSize
+    val bufferedImage = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+    val graphics = bufferedImage.graphics
+    this.paint(graphics)
+    graphics.dispose()
+
+    return bufferedImage
 }
