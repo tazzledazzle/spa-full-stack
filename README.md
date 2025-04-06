@@ -1,5 +1,7 @@
 # spa-full-stack
 
+Practice creating full stack single page projects using Ktor
+
 This project was created using the [Ktor Project Generator](https://start.ktor.io).
 
 Here are some useful links to get you started:
